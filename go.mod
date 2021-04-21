@@ -1,4 +1,4 @@
-module bitbucket.org/mindinformatica/mind-reminder
+module github.com/Mind-Informatica-srl/mind-reminder
 
 go 1.13
 
