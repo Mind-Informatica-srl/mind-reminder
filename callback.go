@@ -16,14 +16,14 @@ type UpdateDiff map[string]interface{}
 
 //callback da eseguire dopo after_create
 func (p *Plugin) addCreated(scope *gorm.Scope) {
-	if isLoggable(scope.Value) && isEnabled(scope.Value) {
+	if isRemindable(scope.Value) && isEnabled(scope.Value) {
 		_ = addRecord(scope, actionCreate)
 	}
 }
 
 //callback da eseguire dopo after_update
 func (p *Plugin) addUpdated(scope *gorm.Scope) {
-	if !isLoggable(scope.Value) || !isEnabled(scope.Value) {
+	if !isRemindable(scope.Value) || !isEnabled(scope.Value) {
 		return
 	}
 
@@ -36,12 +36,19 @@ func (p *Plugin) addUpdated(scope *gorm.Scope) {
 	// 	}
 	// }
 
+	// if p.opts.computeDiff {
+	// 	diff := computeUpdateDiff(scope)
+	// 	if diff == nil {
+	// 		return
+	// 	}
+	// }
+
 	_ = addUpdateRecord(scope, p.opts)
 }
 
 //callback da eseguire dopo after_delete.
 func (p *Plugin) addDeleted(scope *gorm.Scope) {
-	if isLoggable(scope.Value) && isEnabled(scope.Value) {
+	if isRemindable(scope.Value) && isEnabled(scope.Value) {
 		_ = addRecord(scope, actionDelete)
 	}
 }
@@ -83,3 +90,26 @@ func newReminder(scope *gorm.Scope, action string) (*Reminder, error) {
 		RemindAt:   *dateReminder,
 	}, nil
 }
+
+// func computeUpdateDiff(scope *gorm.Scope) UpdateDiff {
+// 	old := im.get(scope.Value, scope.PrimaryKeyValue())
+// 	if old == nil {
+// 		return nil
+// 	}
+
+// 	ov := reflect.ValueOf(old)
+// 	nv := reflect.Indirect(reflect.ValueOf(scope.Value))
+// 	names := getRemindableFieldNames(old)
+
+// 	diff := make(UpdateDiff)
+
+// 	for _, name := range names {
+// 		ofv := ov.FieldByName(name).Interface()
+// 		nfv := nv.FieldByName(name).Interface()
+// 		if ofv != nfv {
+// 			diff[name] = nfv
+// 		}
+// 	}
+
+// 	return diff
+// }

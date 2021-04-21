@@ -71,7 +71,7 @@ func (t *Reminder) TableName() string {
 	return "reminder"
 }
 
-func isLoggable(value interface{}) bool {
+func isRemindable(value interface{}) bool {
 	_, ok := value.(Interface)
 	return ok
 }

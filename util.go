@@ -7,6 +7,9 @@ import (
 
 const remindableTag = "gorm-remindable"
 
+//restituisce slice dei nomi dei campi che influenzano la rigenerazione di una scadenza
+//sono tutti quei campi nella struct che hanno il tag gorm-remindable=true
+//questo metodo viene usato SOLO se opts.computeDiff è true
 func getRemindableFieldNames(value interface{}) []string {
 	var names []string
 

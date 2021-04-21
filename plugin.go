@@ -9,7 +9,9 @@ type Plugin struct {
 	opts options
 }
 
+//medoto da eseguire nell'init() per registrare le callback
 func Register(db *gorm.DB, opts ...Option) (Plugin, error) {
+	//crea su db automaticamente la tabella per reminder (se non esiste)
 	err := db.AutoMigrate(&Reminder{}).Error
 	if err != nil {
 		return Plugin{}, err
@@ -20,6 +22,7 @@ func Register(db *gorm.DB, opts ...Option) (Plugin, error) {
 	}
 	p := Plugin{db: db, opts: o}
 	callback := db.Callback()
+	//si registrano le callback
 	callback.Create().After("gorm:after_create").Register("mindreminder:create", p.addCreated)
 	callback.Update().After("gorm:after_update").Register("mindreminder:update", p.addUpdated)
 	callback.Delete().After("gorm:after_delete").Register("mindreminder:delete", p.addDeleted)
