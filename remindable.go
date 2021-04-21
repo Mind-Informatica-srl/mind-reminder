@@ -28,10 +28,11 @@ type RemindableModel struct {
 	Disabled bool `sql:"-" json:"-"`
 }
 
-func (RemindableModel) Meta() interface{} { return nil }
-func (RemindableModel) lock()             {}
-func (l RemindableModel) isEnabled() bool { return !l.Disabled }
-func (l RemindableModel) Enable(v bool)   { l.Disabled = !v }
+func (RemindableModel) GenerateReminder() (*time.Time, error) { return nil, nil }
+func (RemindableModel) Meta() interface{}                     { return nil }
+func (RemindableModel) lock()                                 {}
+func (l RemindableModel) isEnabled() bool                     { return !l.Disabled }
+func (l RemindableModel) Enable(v bool)                       { l.Disabled = !v }
 
 // Reminder is a main entity, which used to log changes.
 // Commonly, Reminder is stored in 'reminder' table.
