@@ -1,6 +1,8 @@
 package mindreminder
 
 import (
+	"reflect"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -17,6 +19,10 @@ func Register(db *gorm.DB, opts ...Option) (Plugin, error) {
 		return Plugin{}, err
 	}
 	o := options{}
+
+	o.metaTypes = make(map[string]reflect.Type)
+	o.objectTypes = make(map[string]reflect.Type)
+
 	for _, option := range opts {
 		option(&o)
 	}
