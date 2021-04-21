@@ -20,7 +20,6 @@ func getRemindableFieldNames(value interface{}) []string {
 
 		names = append(names, field.Name)
 	}
-
 	return names
 }
 
