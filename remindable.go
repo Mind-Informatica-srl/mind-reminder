@@ -2,6 +2,7 @@ package mindreminder
 
 import (
 	"encoding/json"
+	"errors"
 	"reflect"
 	"time"
 
@@ -13,6 +14,8 @@ import (
 type Interface interface {
 	// Meta should return structure, that can be converted to json.
 	Meta() interface{}
+	// GenerateReminder should return *time.Time
+	GenerateReminder() (*time.Time, error)
 	// lock makes available only embedding structures.
 	lock()
 	// check if callback enabled
@@ -55,9 +58,6 @@ type Reminder struct {
 	// Raw representation of tracking object's meta.
 	// todo(@sas1024): Replace with []byte, to reduce allocations. Would be major version.
 	RawMeta string `sql:"type:JSON"`
-	// Free field to store something you want, e.g. who creates reminder.
-	// Not used field in gorm-loggable, but gorm tracks this field.
-	CreatedBy string `gorm:"index"`
 	// Field Object would contain prepared structure, parsed from RawObject as json.
 	// Use RegObjectType to register object types.
 	Object interface{} `sql:"-"`
@@ -78,6 +78,14 @@ func isLoggable(value interface{}) bool {
 func isEnabled(value interface{}) bool {
 	v, ok := value.(Interface)
 	return ok && v.isEnabled()
+}
+
+func generateReminder(scope *gorm.Scope) (*time.Time, error) {
+	val, ok := scope.Value.(Interface)
+	if !ok {
+		return nil, errors.New("error in generateReminder")
+	}
+	return val.GenerateReminder()
 }
 
 func fetchChangeLogMeta(scope *gorm.Scope) []byte {

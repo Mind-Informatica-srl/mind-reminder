@@ -70,12 +70,16 @@ func newReminder(scope *gorm.Scope, action string) (*Reminder, error) {
 	if err != nil {
 		return nil, err
 	}
+	dateReminder, err := generateReminder(scope)
+	if err != nil {
+		return nil, err
+	}
 	return &Reminder{
 		Action:     action,
 		ObjectID:   interfaceToString(scope.PrimaryKeyValue()),
 		ObjectType: scope.GetModelStruct().ModelType.Name(),
 		RawObject:  string(rawObject),
 		RawMeta:    string(fetchChangeLogMeta(scope)),
-		// RemindAt: TODO,
+		RemindAt:   *dateReminder,
 	}, nil
 }
