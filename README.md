@@ -12,11 +12,20 @@ pacchetto per gestire le scadenze
 
 ## Utilizzo
 
-1. In console eseguire: export GOPRIVATE=github.com/Mind-Informatica-srl/mind-reminder
+1. In .gitconfig deve esserci in fondo una delle due opzioni di seguito (esegui cat ~/.gitconfig per verificarne la presenza)
+   [url "git@github.com:"]
+   insteadOf = https://github.com/
+   [url "https://github"]
+   insteadOf = git://github
 
-2. In console eseguire: go get github.com/Mind-Informatica-srl/mind-reminder
+Per aggiungere una delle opzioni eseguire per esempio:
+git config --global --add url."git@github.com:".insteadOf "https://github.com/"
 
-3. Registra il plugin usando `mindreminder.Register(db)`.
+2. In console eseguire: export GOPRIVATE=github.com/Mind-Informatica-srl/mind-reminder
+
+3. In console eseguire: go get github.com/Mind-Informatica-srl/mind-reminder
+
+4. Registra il plugin usando `mindreminder.Register(db)`.
 
 ```go
 plugin, err := Register(database) // database è *gorm.DB
@@ -25,7 +34,7 @@ if err != nil {
 }
 ```
 
-4. Aggiungere (embed) `mindreminder.RemindableModel` alla model interessata.
+5. Aggiungere (embed) `mindreminder.RemindableModel` alla model interessata.
 
 ```go
 type User struct{
@@ -37,5 +46,13 @@ type User struct{
 }
 ```
 
-5. Per ogni model definire i criteri per generare le scadenze
-6. Dopo le chiamate Create, Save, Update, Delete vengono avviati i criteri per generare nuove scadenze.
+6. Per ogni model definire i criteri per generare le scadenze
+
+```go
+func (c User) GenerateReminder(db *gorm.DB) (*time.Time, error) {
+	n := time.Now()
+	return &n, nil
+}
+```
+
+7. Dopo le chiamate Create, Save, Update, Delete vengono avviati i criteri per generare nuove scadenze.

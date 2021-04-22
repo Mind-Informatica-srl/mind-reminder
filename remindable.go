@@ -15,7 +15,7 @@ type Interface interface {
 	// Meta should return structure, that can be converted to json.
 	Meta() interface{}
 	// GenerateReminder should return *time.Time
-	GenerateReminder() (*time.Time, error)
+	GenerateReminder(*gorm.DB) (*time.Time, error)
 	// lock makes available only embedding structures.
 	lock()
 	// check if callback enabled
@@ -28,11 +28,11 @@ type RemindableModel struct {
 	Disabled bool `sql:"-" json:"-"`
 }
 
-func (RemindableModel) GenerateReminder() (*time.Time, error) { return nil, nil }
-func (RemindableModel) Meta() interface{}                     { return nil }
-func (RemindableModel) lock()                                 {}
-func (l RemindableModel) isEnabled() bool                     { return !l.Disabled }
-func (l RemindableModel) Enable(v bool)                       { l.Disabled = !v }
+func (RemindableModel) GenerateReminder(db *gorm.DB) (*time.Time, error) { return nil, nil }
+func (RemindableModel) Meta() interface{}                                { return nil }
+func (RemindableModel) lock()                                            {}
+func (l RemindableModel) isEnabled() bool                                { return !l.Disabled }
+func (l RemindableModel) Enable(v bool)                                  { l.Disabled = !v }
 
 // Reminder is a main entity, which used to log changes.
 // Commonly, Reminder is stored in 'reminder' table.
@@ -86,7 +86,7 @@ func generateReminder(scope *gorm.Scope) (*time.Time, error) {
 	if !ok {
 		return nil, errors.New("error in generateReminder")
 	}
-	return val.GenerateReminder()
+	return val.GenerateReminder(scope.DB())
 }
 
 func fetchChangeLogMeta(scope *gorm.Scope) []byte {

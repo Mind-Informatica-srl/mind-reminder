@@ -30,11 +30,11 @@ type options struct {
 // 	}
 // }
 
-// RegObjectType maps object to type name, that is used in field Type of ChangeLog struct.
+// RegObjectType maps object to type name, that is used in field Type of Remindable struct.
 // On read change log operations, if plugin finds registered object type, by its name from db,
 // it unmarshal field RawObject to Object field via json.Unmarshal.
 //
-// To access decoded object, e.g. `ReallyFunnyClient`, use type casting: `changeLog.Object.(ReallyFunnyClient)`.
+// To access decoded object, e.g. `ReallyFunnyClient`, use type casting: `mindreminder.Object.(ReallyFunnyClient)`.
 func RegObjectType(objectType string, objectStruct interface{}) Option {
 	return func(options *options) {
 		options.objectTypes[objectType] = reflect.Indirect(reflect.ValueOf(objectStruct)).Type()
@@ -42,11 +42,11 @@ func RegObjectType(objectType string, objectStruct interface{}) Option {
 }
 
 // RegMetaType works like RegObjectType, but for field RawMeta.
-// RegMetaType maps object to type name, that is used in field Type of ChangeLog struct.
+// RegMetaType maps object to type name, that is used in field Type of Remindable struct.
 // On read change log operations, if plugin finds registered object type, by its name from db,
 // it unmarshal field RawMeta to Meta field via json.Unmarshal.
 //
-// To access decoded object, e.g. `MyClientMeta`, use type casting: `changeLog.Meta.(MyClientMeta)`.
+// To access decoded object, e.g. `MyClientMeta`, use type casting: `mindreminder.Meta.(MyClientMeta)`.
 func RegMetaType(objectType string, metaType interface{}) Option {
 	return func(options *options) {
 		options.metaTypes[objectType] = reflect.Indirect(reflect.ValueOf(metaType)).Type()
