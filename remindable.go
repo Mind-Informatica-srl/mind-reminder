@@ -78,6 +78,10 @@ type ToRemind struct {
 	ObjectRaw string `gorm:"type:json"`
 	// Timestamp, when reminder was created.
 	CreatedAt time.Time `gorm:"default:now()"`
+	//data della lavorazione del calcolo della scadenza
+	ElaboratedAt *time.Time
+	//eventuale messaggio di errore nel calcolo della scadenza
+	Error *string
 	// Field Object would contain prepared structure, parsed from RawObject as json.
 	// Use RegObjectType to register object types.
 	Object interface{} `gorm:"-" sql:"-"`

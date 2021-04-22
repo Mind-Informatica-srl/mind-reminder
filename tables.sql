@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS public.to_remind
     object_type text not null,
     object_raw json,
     created_at timestamp without time zone DEFAULT now(),
+    elaborated_at timestamp without time zone,
+    error text,
     CONSTRAINT to_remind_pkey PRIMARY KEY
 (id)
 );
