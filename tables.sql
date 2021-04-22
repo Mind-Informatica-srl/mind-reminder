@@ -3,10 +3,11 @@
 CREATE TABLE IF NOT EXISTS public.to_remind
 (
     id serial NOT NULL,
+    action text not null,
     object_id text not null,
     object_type text not null,
-    raw_object json,
-    created_at timestamp without time zone,
+    object_raw json,
+    created_at timestamp without time zone DEFAULT now(),
     CONSTRAINT to_remind_pkey PRIMARY KEY
 (id)
 );
@@ -21,7 +22,7 @@ CREATE TABLE IF NOT EXISTS public.reminder
     object_type text not null,
     expire_at timestamp without time zone,
     accomplished_at timestamp without time zone,
-    created_at timestamp without time zone,
+    created_at timestamp without time zone DEFAULT now(),
     percentage numeric,
     status_description text,
     visibility text,

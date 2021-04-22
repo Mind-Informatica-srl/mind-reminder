@@ -63,6 +63,7 @@ func newToRemind(db *gorm.DB, action string) (*ToRemind, error) {
 		return nil, err
 	}
 	return &ToRemind{
+		Action:     action,
 		ObjectID:   interfaceToString(GetPrimaryKeyValue(db)),
 		ObjectType: db.Statement.Schema.ModelType.Name(),
 		ObjectRaw:  string(rawObject),

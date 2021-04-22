@@ -64,6 +64,8 @@ func (l Remind) Enable(v bool)   { l.Disabled = !v }
 type ToRemind struct {
 	// Primary key of reminders.
 	ID int //uuid.UUID `gorm:"primary_key;"`
+	//azione che ha scatenato l'insert del rigo
+	Action string
 	// ID of tracking object.
 	// By this ID later you can find all object (database row) changes.
 	ObjectID string //`gorm:"index"`
