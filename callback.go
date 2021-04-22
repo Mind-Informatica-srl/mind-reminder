@@ -1,9 +1,7 @@
 package mindreminder
 
 import (
-	"encoding/json"
-
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 const (
@@ -15,101 +13,59 @@ const (
 type UpdateDiff map[string]interface{}
 
 //callback da eseguire dopo after_create
-func (p *Plugin) addCreated(scope *gorm.Scope) {
-	if isRemindable(scope.Value) && isEnabled(scope.Value) {
-		_ = addRecord(scope, actionCreate)
+func (p *Plugin) addCreated(db *gorm.DB) {
+	if db.Statement.Schema != nil {
+		if isRemindable(db.Statement.Schema) {
+			_ = addRecord(db, actionCreate)
+		}
 	}
 }
 
 //callback da eseguire dopo after_update
-func (p *Plugin) addUpdated(scope *gorm.Scope) {
-	if !isRemindable(scope.Value) || !isEnabled(scope.Value) {
-		return
+func (p *Plugin) addUpdated(db *gorm.DB) {
+	if db.Statement.Schema != nil {
+		if isRemindable(db.Statement.Schema) {
+			_ = addUpdateRecord(db, p.opts)
+		}
 	}
-
-	// if p.opts.lazyUpdate {
-	// 	record, err := p.GetLastRecord(interfaceToString(scope.PrimaryKeyValue()), false)
-	// 	if err == nil {
-	// 		if isEqual(record.RawObject, scope.Value, p.opts.lazyUpdateFields...) {
-	// 			return
-	// 		}
-	// 	}
-	// }
-
-	// if p.opts.computeDiff {
-	// 	diff := computeUpdateDiff(scope)
-	// 	if diff == nil {
-	// 		return
-	// 	}
-	// }
-
-	_ = addUpdateRecord(scope, p.opts)
 }
 
 //callback da eseguire dopo after_delete.
-func (p *Plugin) addDeleted(scope *gorm.Scope) {
-	if isRemindable(scope.Value) && isEnabled(scope.Value) {
-		_ = addRecord(scope, actionDelete)
+func (p *Plugin) addDeleted(db *gorm.DB) {
+	if isRemindable(db.Statement.Schema) {
+		_ = addRecord(db, actionDelete)
 	}
 }
 
 // Writes new reminder row to db.
-func addRecord(scope *gorm.Scope, action string) error {
-	cl, err := newReminder(scope, action)
+func addRecord(db *gorm.DB, action string) error {
+	cl, err := newReminder(db, action)
 	if err != nil {
 		return nil
 	}
 
-	return scope.DB().Create(cl).Error
+	return db.Create(cl).Error
 }
 
-func addUpdateRecord(scope *gorm.Scope, opts options) error {
-	cl, err := newReminder(scope, actionUpdate)
+func addUpdateRecord(db *gorm.DB, opts options) error {
+	cl, err := newReminder(db, actionUpdate)
 	if err != nil {
 		return err
 	}
 
-	return scope.DB().Create(cl).Error
+	return db.Create(cl).Error
 }
 
-func newReminder(scope *gorm.Scope, action string) (*Reminder, error) {
-	rawObject, err := json.Marshal(scope.Value)
-	if err != nil {
-		return nil, err
-	}
-	dateReminder, err := generateReminder(scope)
-	if err != nil {
-		return nil, err
-	}
-	return &Reminder{
-		Action:     action,
-		ObjectID:   interfaceToString(scope.PrimaryKeyValue()),
-		ObjectType: scope.GetModelStruct().ModelType.Name(),
-		RawObject:  string(rawObject),
-		RawMeta:    string(fetchChangeLogMeta(scope)),
-		RemindAt:   *dateReminder,
-	}, nil
+//restituisce uno slice di scadenze
+func newReminder(db *gorm.DB, action string) (*ToRemind, error) {
+	// rawObject, err := json.Marshal(db.Statement.Schema)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	return nil, nil
+	// return &ToRemind{
+	// 	ObjectID:   interfaceToString(db.Statement.Schema.PrimaryFields()),
+	// 	ObjectType: db.GetModelStruct().ModelType.Name(),
+	// 	RawObject:  string(rawObject),
+	// }, nil
 }
-
-// func computeUpdateDiff(scope *gorm.Scope) UpdateDiff {
-// 	old := im.get(scope.Value, scope.PrimaryKeyValue())
-// 	if old == nil {
-// 		return nil
-// 	}
-
-// 	ov := reflect.ValueOf(old)
-// 	nv := reflect.Indirect(reflect.ValueOf(scope.Value))
-// 	names := getRemindableFieldNames(old)
-
-// 	diff := make(UpdateDiff)
-
-// 	for _, name := range names {
-// 		ofv := ov.FieldByName(name).Interface()
-// 		nfv := nv.FieldByName(name).Interface()
-// 		if ofv != nfv {
-// 			diff[name] = nfv
-// 		}
-// 	}
-
-// 	return diff
-// }

@@ -34,7 +34,7 @@ if err != nil {
 }
 ```
 
-5. Aggiungere (embed) `mindreminder.RemindableModel` alla model interessata.
+5. Aggiungere (embed) `mindreminder.Remind` alla model interessata.
 
 ```go
 type User struct{
@@ -42,16 +42,18 @@ type User struct{
     CreatedAt time.Time
     // ...
 
-    mindreminder.RemindableModel
+    mindreminder.Remind
 }
 ```
 
 6. Per ogni model definire i criteri per generare le scadenze
 
 ```go
-func (c User) GenerateReminder(db *gorm.DB) (*time.Time, error) {
-	n := time.Now()
-	return &n, nil
+func (l Remind) GetReminders(db *gorm.DB) (toInsert []ToRemind, toDelete []ToRemind, err error) {
+	toInsert = []ToRemind{}
+	toDelete = []ToRemind{}
+	err = nil
+	return
 }
 ```
 
