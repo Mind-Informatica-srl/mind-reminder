@@ -1,6 +1,8 @@
 package mindreminder
 
 import (
+	"encoding/json"
+
 	"gorm.io/gorm"
 )
 
@@ -37,7 +39,7 @@ func (p *Plugin) addDeleted(db *gorm.DB) {
 
 // Writes new reminder row to db.
 func addRecord(db *gorm.DB, action string) error {
-	cl, err := newReminder(db, action)
+	cl, err := newToRemind(db, action)
 	if err != nil {
 		return nil
 	}
@@ -46,7 +48,7 @@ func addRecord(db *gorm.DB, action string) error {
 }
 
 func addUpdateRecord(db *gorm.DB, opts options) error {
-	cl, err := newReminder(db, actionUpdate)
+	cl, err := newToRemind(db, actionUpdate)
 	if err != nil {
 		return err
 	}
@@ -55,15 +57,14 @@ func addUpdateRecord(db *gorm.DB, opts options) error {
 }
 
 //restituisce uno slice di scadenze
-func newReminder(db *gorm.DB, action string) (*ToRemind, error) {
-	// rawObject, err := json.Marshal(db.Statement.Model)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	return nil, nil
-	// return &ToRemind{
-	// 	ObjectID:   interfaceToString(db.Statement.Model.PrimaryFields()),
-	// 	ObjectType: db.GetModelStruct().ModelType.Name(),
-	// 	RawObject:  string(rawObject),
-	// }, nil
+func newToRemind(db *gorm.DB, action string) (*ToRemind, error) {
+	rawObject, err := json.Marshal(db.Statement.Model)
+	if err != nil {
+		return nil, err
+	}
+	return &ToRemind{
+		ObjectID:   interfaceToString(GetPrimaryKeyValue(db)),
+		ObjectType: db.Statement.Schema.ModelType.Name(),
+		ObjectRaw:  string(rawObject),
+	}, nil
 }

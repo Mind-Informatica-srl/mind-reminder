@@ -12,11 +12,11 @@ import (
 type Reminder struct {
 	ID int
 	//Descrizione della scadenza
-	Description string
+	Description *string
 	//Tipo della scadenza
 	ReminderType string
 	//json dell'oggetto
-	RawObject string
+	ObjectRaw string `gorm:"type:json"`
 	//tipo della model dell'oggetto
 	ObjectType string
 	//Data Scadenza
@@ -24,7 +24,7 @@ type Reminder struct {
 	//Data Assolvenza
 	AccomplishedAt *time.Time
 	//Data Creazione
-	CreatedAt time.Time `sql:"DEFAULT:current_timestamp"`
+	CreatedAt time.Time `gorm:"default:now()"`
 	//Percentuale di assolvenza
 	Percentage float64
 	//Descrizione dello stato della scadenza
@@ -64,21 +64,21 @@ func (l Remind) Enable(v bool)   { l.Disabled = !v }
 type ToRemind struct {
 	// Primary key of reminders.
 	ID int //uuid.UUID `gorm:"primary_key;"`
-	// Timestamp, when reminder was created.
-	CreatedAt time.Time `sql:"DEFAULT:current_timestamp"`
 	// ID of tracking object.
 	// By this ID later you can find all object (database row) changes.
-	ObjectID string `gorm:"index"`
+	ObjectID string //`gorm:"index"`
 	// Reflect name of tracking object.
 	// It does not use package or module name, so
 	// it may be not unique when use multiple types from different packages but with the same name.
-	ObjectType string `gorm:"index"`
+	ObjectType string //`gorm:"index"`
 	// Raw representation of tracking object.
 	// todo(@sas1024): Replace with []byte, to reduce allocations. Would be major version.
-	RawObject string `sql:"type:JSON"`
+	ObjectRaw string `gorm:"type:json"`
+	// Timestamp, when reminder was created.
+	CreatedAt time.Time `gorm:"default:now()"`
 	// Field Object would contain prepared structure, parsed from RawObject as json.
 	// Use RegObjectType to register object types.
-	Object interface{} `sql:"-"`
+	Object interface{} `gorm:"-" sql:"-"`
 }
 
 func (t *ToRemind) TableName() string {
@@ -94,7 +94,7 @@ func isRemindable(value interface{}) bool {
 // Allocate new and try to decode reminder field RawObject to Object.
 func (l *ToRemind) prepareObject(objType reflect.Type) error {
 	obj := reflect.New(objType).Interface()
-	err := json.Unmarshal([]byte(l.RawObject), obj)
+	err := json.Unmarshal([]byte(l.ObjectRaw), obj)
 	l.Object = obj
 	return err
 }
