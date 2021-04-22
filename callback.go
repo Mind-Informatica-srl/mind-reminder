@@ -10,12 +10,10 @@ const (
 	actionDelete = "delete"
 )
 
-type UpdateDiff map[string]interface{}
-
 //callback da eseguire dopo after_create
 func (p *Plugin) addCreated(db *gorm.DB) {
-	if db.Statement.Schema != nil {
-		if isRemindable(db.Statement.Schema) {
+	if db.Statement.Model != nil {
+		if isRemindable(db.Statement.Model) {
 			_ = addRecord(db, actionCreate)
 		}
 	}
@@ -23,8 +21,8 @@ func (p *Plugin) addCreated(db *gorm.DB) {
 
 //callback da eseguire dopo after_update
 func (p *Plugin) addUpdated(db *gorm.DB) {
-	if db.Statement.Schema != nil {
-		if isRemindable(db.Statement.Schema) {
+	if db.Statement.Model != nil {
+		if isRemindable(db.Statement.Model) {
 			_ = addUpdateRecord(db, p.opts)
 		}
 	}
@@ -32,7 +30,7 @@ func (p *Plugin) addUpdated(db *gorm.DB) {
 
 //callback da eseguire dopo after_delete.
 func (p *Plugin) addDeleted(db *gorm.DB) {
-	if isRemindable(db.Statement.Schema) {
+	if isRemindable(db.Statement.Model) {
 		_ = addRecord(db, actionDelete)
 	}
 }
@@ -58,13 +56,13 @@ func addUpdateRecord(db *gorm.DB, opts options) error {
 
 //restituisce uno slice di scadenze
 func newReminder(db *gorm.DB, action string) (*ToRemind, error) {
-	// rawObject, err := json.Marshal(db.Statement.Schema)
+	// rawObject, err := json.Marshal(db.Statement.Model)
 	// if err != nil {
 	// 	return nil, err
 	// }
 	return nil, nil
 	// return &ToRemind{
-	// 	ObjectID:   interfaceToString(db.Statement.Schema.PrimaryFields()),
+	// 	ObjectID:   interfaceToString(db.Statement.Model.PrimaryFields()),
 	// 	ObjectType: db.GetModelStruct().ModelType.Name(),
 	// 	RawObject:  string(rawObject),
 	// }, nil

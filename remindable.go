@@ -48,7 +48,7 @@ type Remindable interface {
 }
 
 type Remind struct {
-	Disabled bool `sql:"-" json:"-"`
+	Disabled bool `gorm:"-" sql:"-" json:"-"`
 }
 
 func (l Remind) GetReminders(db *gorm.DB) (toInsert []ToRemind, toDelete []ToRemind, err error) {
