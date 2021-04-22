@@ -49,7 +49,7 @@ type User struct{
 6. Per ogni model definire i criteri per generare le scadenze
 
 ```go
-func (l Remind) GetReminders(db *gorm.DB) (toInsert []ToRemind, toDelete []ToRemind, err error) {
+func (l Remind) Reminders(db *gorm.DB) (toInsert []ToRemind, toDelete []ToRemind, err error) {
 	toInsert = []ToRemind{}
 	toDelete = []ToRemind{}
 	err = nil

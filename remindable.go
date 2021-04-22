@@ -51,7 +51,7 @@ type Remind struct {
 	Disabled bool `gorm:"-" sql:"-" json:"-"`
 }
 
-func (l Remind) GetReminders(db *gorm.DB) (toInsert []ToRemind, toDelete []ToRemind, err error) {
+func (l Remind) Reminders(db *gorm.DB) (toInsert []ToRemind, toDelete []ToRemind, err error) {
 	toInsert = []ToRemind{}
 	toDelete = []ToRemind{}
 	err = nil
