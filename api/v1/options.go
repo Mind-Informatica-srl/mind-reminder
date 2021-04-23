@@ -1,4 +1,4 @@
-package mindreminder
+package v1
 
 import "reflect"
 
