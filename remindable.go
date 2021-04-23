@@ -41,24 +41,39 @@ func (t *Reminder) TableName() string {
 type Remindable interface {
 	// deve restituire slice dei reminder da inserire, slice dei reminder da cancellare e l'eventualem errore
 	Reminders(*gorm.DB) ([]Reminder, []Reminder, error)
+	AfterCreate(*gorm.DB) error
+	AfterUpdate(*gorm.DB) error
+	AfterDelete(*gorm.DB) error
 	// check if callback enabled
 	// isEnabled() bool
 	// // enable/disable loggable
 	// Enable(v bool)
 }
 
-// type Remind struct {
-// 	Disabled bool `gorm:"-" sql:"-" json:"-"`
-// }
+type Remind struct {
+	Disabled bool `gorm:"-" sql:"-" json:"-"`
+}
 
-// func (l Remind) Reminders(db *gorm.DB) (toInsert []Reminder, toDelete []Reminder, err error) {
-// 	toInsert = []Reminder{}
-// 	toDelete = []Reminder{}
-// 	err = nil
-// 	return
-// }
-// func (l Remind) isEnabled() bool { return !l.Disabled }
-// func (l Remind) Enable(v bool)   { l.Disabled = !v }
+func (l Remind) Reminders(db *gorm.DB) (toInsert []Reminder, toDelete []Reminder, err error) {
+	toInsert = []Reminder{}
+	toDelete = []Reminder{}
+	err = nil
+	return
+}
+func (l Remind) isEnabled() bool { return !l.Disabled }
+func (l Remind) Enable(v bool)   { l.Disabled = !v }
+
+func (l *Remind) AfterCreate(db *gorm.DB) error {
+	return addRecord(db, actionCreate)
+}
+
+func (l *Remind) AfterUpdate(db *gorm.DB) error {
+	return addRecord(db, actionUpdate)
+}
+
+func (l *Remind) AfterDelete(db *gorm.DB) error {
+	return addRecord(db, actionDelete)
+}
 
 //struct delle modifiche da cui si dovranno calcolare le scadenze (Reminder)
 type ToRemind struct {

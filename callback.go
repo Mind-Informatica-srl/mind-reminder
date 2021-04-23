@@ -43,12 +43,12 @@ func addRecord(db *gorm.DB, action string) error {
 }
 
 //restituisce uno slice di scadenze
-func newToRemind(db *gorm.DB, action string) (*ToRemind, error) {
+func newToRemind(db *gorm.DB, action string) (ToRemind, error) {
 	rawObject, err := json.Marshal(db.Statement.Model)
 	if err != nil {
-		return nil, err
+		return ToRemind{}, err
 	}
-	return &ToRemind{
+	return ToRemind{
 		Action:     action,
 		ObjectID:   interfaceToString(GetPrimaryKeyValue(db)),
 		ObjectType: db.Statement.Schema.ModelType.Name(),
