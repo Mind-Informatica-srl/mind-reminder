@@ -22,7 +22,7 @@ func (p *Plugin) addCreated(db *gorm.DB) {
 //callback da eseguire dopo after_update
 func (p *Plugin) addUpdated(db *gorm.DB) {
 	if db.Statement.Model != nil && isRemindable(db.Statement.Model) {
-		_ = addRecord(db, actionDelete)
+		_ = addRecord(db, actionUpdate)
 	}
 }
 
@@ -39,7 +39,7 @@ func addRecord(db *gorm.DB, action string) error {
 	if err != nil {
 		return nil
 	}
-	return db.Model(r).Create(r).Error
+	return db.Create(r).Error
 }
 
 //restituisce uno slice di scadenze
