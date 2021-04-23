@@ -40,14 +40,6 @@ func (t *RemindToCalculate) TableName() string {
 	return "remind_to_calculate"
 }
 
-// Allocate new and try to decode reminder field RawObject to Object.
-func (l *RemindToCalculate) PrepareObject(objType reflect.Type) error {
-	obj := reflect.New(objType).Interface()
-	err := json.Unmarshal([]byte(l.ObjectRaw), obj)
-	l.Object = obj
-	return err
-}
-
 //restituisce uno slice di scadenze
 func newRemindToCalculate(db *gorm.DB, action string) (RemindToCalculate, error) {
 	rawObject, err := json.Marshal(db.Statement.Model)
@@ -60,4 +52,12 @@ func newRemindToCalculate(db *gorm.DB, action string) (RemindToCalculate, error)
 		ObjectType: db.Statement.Schema.ModelType.Name(),
 		ObjectRaw:  string(rawObject),
 	}, nil
+}
+
+//converte il json object_raw in struct e lo mette dentro Object
+func (r *RemindToCalculate) PrepareObject(objType reflect.Type) error {
+	obj := reflect.New(objType).Interface()
+	err := json.Unmarshal([]byte(r.ObjectRaw), obj)
+	r.Object = obj
+	return err
 }

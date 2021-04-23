@@ -1,4 +1,6 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/Mind-Informatica-srl/mind-logger v0.0.0-20210423120801-b2421d48d9c7 h1:rHCa9a1dyC45HguxAeFRo64F4pu8ygPt6Xl+dBDHSUM=
+github.com/Mind-Informatica-srl/mind-logger v0.0.0-20210423120801-b2421d48d9c7/go.mod h1:ja4mJhr4PK5yUNPokXlii28NyJ0jtmW0OU5D9Mn7sYk=
 github.com/cheekybits/genny v1.0.0 h1:uGGa4nei+j20rOSeDeP5Of12XVm7TGUd4dJA9RDitfE=
 github.com/cheekybits/genny v1.0.0/go.mod h1:+tQajlRqAUrPI7DOSpB0XAqZYtQakVtB7wXkRAgjxjQ=
 github.com/cockroachdb/apd v1.1.0/go.mod h1:8Sl8LxpKi29FqWXR16WEFZRNSz3SoPzUzeMeY4+DwBQ=

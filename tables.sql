@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE IF NOT EXISTS public.to_remind
+CREATE TABLE IF NOT EXISTS public.remind_to_calculate
 (
     id serial NOT NULL,
     action text not null,
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS public.reminder
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE if exists public.to_remind;
+DROP TABLE if exists public.remind_to_calculate;
 -- +goose StatementEnd
 -- +goose StatementBegin
 DROP TABLE if exists public.reminder;

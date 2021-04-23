@@ -12,6 +12,7 @@
             "program": "${workspaceFolder}/cmd",
             "env": {
                 "DB_HOST": "localhost",
+                "MAIN_DESTINATION_FOLDER":"../service_logs"
             }
         }
     ]
