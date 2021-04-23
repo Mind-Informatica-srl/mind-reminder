@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -19,17 +20,22 @@ func interfaceToString(v interface{}) string {
 
 //restituisce la struct con solo i campi della primary key valorizzati
 func GetPrimaryKeyValue(db *gorm.DB) string {
-	var res string
+	var sb strings.Builder
 	if keys := db.Statement.Schema.PrimaryFields; keys != nil {
 		model := reflect.Indirect(reflect.ValueOf(db.Statement.Model))
 		primary := reflect.New(model.Type()).Elem()
-		res = "{"
+		sb.WriteString("{")
+		addComma := false
 		for _, key := range keys {
 			keyValue := model.FieldByName(key.Name)
-			if res != "{" {
-				res += ","
+			if !addComma {
+				addComma = true
+			} else {
+				sb.WriteString(",")
 			}
-			res += "\"" + key.Name + "\":"
+			sb.WriteString("\"")
+			sb.WriteString(key.Name)
+			sb.WriteString("\":")
 			var valueString string
 			switch keyValue.Kind() {
 			case reflect.Int:
@@ -39,12 +45,14 @@ func GetPrimaryKeyValue(db *gorm.DB) string {
 				valueString = keyValue.String()
 				break
 			}
-			res += "\"" + valueString + "\""
+			sb.WriteString("\"")
+			sb.WriteString(valueString)
+			sb.WriteString("\"")
 			primary.FieldByName(key.Name).Set(model.FieldByName(key.Name))
 		}
-		res += "}"
+		sb.WriteString("}")
 	}
-	return res
+	return sb.String()
 }
 
 // //restituisce la struct con solo i campi della primary key valorizzati

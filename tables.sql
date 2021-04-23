@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS public.reminder
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE public.to_remind;
+DROP TABLE if exists public.to_remind;
 -- +goose StatementEnd
 -- +goose StatementBegin
-DROP TABLE public.reminder;
+DROP TABLE if exists public.reminder;
 -- +goose StatementEnd
