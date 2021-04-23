@@ -10,6 +10,9 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd",
+            "env": {
+                "DB_HOST": "localhost",
+            }
         }
     ]
 }
