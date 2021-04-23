@@ -39,7 +39,7 @@ func addRecord(db *gorm.DB, action string) error {
 	if err != nil {
 		return nil
 	}
-	return db.Create(&r).Error
+	return db.Model(r).Create(&r).Error
 }
 
 //restituisce uno slice di scadenze
