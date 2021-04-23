@@ -3,7 +3,7 @@ package v1
 import (
 	"reflect"
 
-	"github.com/Mind-Informatica-srl/mind-reminder/models"
+	"github.com/Mind-Informatica-srl/mind-reminder/internal/models"
 	"gorm.io/gorm"
 )
 
