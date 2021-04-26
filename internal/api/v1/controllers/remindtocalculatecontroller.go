@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/Mind-Informatica-srl/mind-reminder/internal/models"
+	models "github.com/Mind-Informatica-srl/mind-reminder/internal/models"
 	"gorm.io/gorm"
 )
 

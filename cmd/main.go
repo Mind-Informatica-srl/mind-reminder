@@ -6,7 +6,7 @@ import (
 	"time"
 
 	v1 "github.com/Mind-Informatica-srl/mind-reminder/internal/api/v1"
-	"github.com/Mind-Informatica-srl/mind-reminder/internal/models"
+	mindreminder "github.com/Mind-Informatica-srl/mind-reminder/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +19,7 @@ type Utente struct {
 	JwtToken  *string `gorm:"-"`
 	RuoloID   int
 
-	*models.Remind
+	*mindreminder.Remind
 }
 
 func (u Utente) LogDescription() string {
@@ -30,11 +30,11 @@ func (r *Utente) TableName() string {
 	return strings.ToLower("Utenti")
 }
 
-func (l *Utente) Reminders(db *gorm.DB) (toInsert []models.Reminder, toDelete []models.Reminder, err error) {
-	toInsert = []models.Reminder{}
-	toDelete = []models.Reminder{}
+func (l *Utente) Reminders(db *gorm.DB) (toInsert []mindreminder.Reminder, toDelete []mindreminder.Reminder, err error) {
+	toInsert = []mindreminder.Reminder{}
+	toDelete = []mindreminder.Reminder{}
 	err = nil
-	newEl, err := models.NewBaseReminder(l, "Test", "Scadenza")
+	newEl, err := mindreminder.NewBaseReminder(l, "Test", "Scadenza")
 	if err != nil {
 		return
 	}
@@ -45,7 +45,7 @@ func (l *Utente) Reminders(db *gorm.DB) (toInsert []models.Reminder, toDelete []
 	// if err = db.Model(oldEl).First(&oldEl).Error; err != nil {
 	// 	return
 	// }
-	oldEl := models.Reminder{
+	oldEl := mindreminder.Reminder{
 		ReminderType: "Scadenza",
 		ObjectType:   "Utente",
 	}

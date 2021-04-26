@@ -1,4 +1,4 @@
-package models
+package mindreminder
 
 import (
 	"gorm.io/gorm"
