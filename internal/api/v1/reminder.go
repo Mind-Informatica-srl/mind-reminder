@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
@@ -30,6 +31,8 @@ func StartService(structList []interface{}) error {
 	}
 	timeEnd := time.Now()
 	appLog.AppendLn("SERVICE END: " + timeEnd.Format("01-02-2006"))
+	appLog.AppendLn(fmt.Sprintf("EXECUTION TIME: %v sec.", timeEnd.Sub(timeStart).Seconds()))
+
 	appLog.WriteLog()
 	return nil
 }
@@ -73,7 +76,8 @@ var typeRegistry = make(map[string]reflect.Type)
 // typeRegistry["MyStruct"] = reflect.TypeOf(MyStruct{})
 func RegisterTypes(myTypes []interface{}) {
 	for _, v := range myTypes {
-		typeRegistry[reflect.TypeOf(v).Name()] = reflect.TypeOf(v)
+		structType := reflect.TypeOf(v)
+		typeRegistry[structType.Name()] = structType
 	}
 }
 

@@ -18,6 +18,7 @@ func UpdateReminders(db *gorm.DB, el *models.RemindToCalculate, typeRegistry map
 	if err != nil {
 		return err
 	}
+	//si apre transazione: se una sola insert o una sola delete ha sollevato errore, si fa rollback
 	db.Transaction(func(tx2 *gorm.DB) error {
 		//si cancellano ed inseriscono le scadenze ottenute
 		if toDeleteList != nil && len(toDeleteList) > 0 {

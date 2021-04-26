@@ -1,7 +1,7 @@
 package mindreminder
 
 import (
-	"fmt"
+	"encoding/json"
 	"reflect"
 	"strconv"
 	"strings"
@@ -14,15 +14,6 @@ const (
 	ActionUpdate = "update"
 	ActionDelete = "delete"
 )
-
-func interfaceToString(v interface{}) string {
-	switch val := v.(type) {
-	case string:
-		return val
-	default:
-		return fmt.Sprint(v)
-	}
-}
 
 //restituisce la struct con solo i campi della primary key valorizzati
 func GetPrimaryKeyValue(db *gorm.DB) string {
@@ -59,4 +50,12 @@ func GetPrimaryKeyValue(db *gorm.DB) string {
 		sb.WriteString("}")
 	}
 	return sb.String()
+}
+
+func InterfaceToJsonString(l interface{}) (string, error) {
+	rawObject, err := json.Marshal(l)
+	if err != nil {
+		return "", err
+	}
+	return string(rawObject), nil
 }

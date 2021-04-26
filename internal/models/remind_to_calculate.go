@@ -42,7 +42,7 @@ func (t *RemindToCalculate) TableName() string {
 
 //restituisce uno slice di scadenze
 func newRemindToCalculate(db *gorm.DB, action string) (RemindToCalculate, error) {
-	rawObject, err := json.Marshal(db.Statement.Model)
+	rawObjectString, err := mindreminder.InterfaceToJsonString(db.Statement.Model)
 	if err != nil {
 		return RemindToCalculate{}, err
 	}
@@ -50,7 +50,7 @@ func newRemindToCalculate(db *gorm.DB, action string) (RemindToCalculate, error)
 		Action:     action,
 		ObjectID:   mindreminder.GetPrimaryKeyValue(db),
 		ObjectType: db.Statement.Schema.ModelType.Name(),
-		ObjectRaw:  string(rawObject),
+		ObjectRaw:  rawObjectString,
 	}, nil
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"strings"
+	"time"
 
 	v1 "github.com/Mind-Informatica-srl/mind-reminder/internal/api/v1"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/models"
@@ -29,10 +30,27 @@ func (r *Utente) TableName() string {
 	return strings.ToLower("Utenti")
 }
 
-func (l Utente) Reminders(db *gorm.DB) (toInsert []models.Reminder, toDelete []models.Reminder, err error) {
+func (l *Utente) Reminders(db *gorm.DB) (toInsert []models.Reminder, toDelete []models.Reminder, err error) {
 	toInsert = []models.Reminder{}
 	toDelete = []models.Reminder{}
 	err = nil
+	newEl, err := models.NewBaseReminder(l, "Test", "Scadenza")
+	if err != nil {
+		return
+	}
+	newEl.ExpireAt = time.Now()
+	toInsert = append(toInsert, newEl)
+
+	// var oldEl models.Reminder
+	// if err = db.Model(oldEl).First(&oldEl).Error; err != nil {
+	// 	return
+	// }
+	oldEl := models.Reminder{
+		ReminderType: "Scadenza",
+		ObjectType:   "Utente",
+	}
+	toDelete = append(toDelete, oldEl)
+
 	return
 }
 

@@ -1,6 +1,8 @@
 package models
 
 import (
+	"reflect"
+
 	mindreminder "github.com/Mind-Informatica-srl/mind-reminder"
 	"gorm.io/gorm"
 )
@@ -9,7 +11,7 @@ import (
 type Remind struct {
 }
 
-func (l Remind) Reminders(db *gorm.DB) (toInsert []Reminder, toDelete []Reminder, err error) {
+func (l *Remind) Reminders(db *gorm.DB) (toInsert []Reminder, toDelete []Reminder, err error) {
 	toInsert = []Reminder{}
 	toDelete = []Reminder{}
 	err = nil
@@ -17,22 +19,35 @@ func (l Remind) Reminders(db *gorm.DB) (toInsert []Reminder, toDelete []Reminder
 }
 
 func (l *Remind) AfterCreate(db *gorm.DB) error {
-	return addRecord(db, mindreminder.ActionCreate)
+	return addRecordRemindToCalculate(db, mindreminder.ActionCreate)
 }
 
 func (l *Remind) AfterUpdate(db *gorm.DB) error {
-	return addRecord(db, mindreminder.ActionUpdate)
+	return addRecordRemindToCalculate(db, mindreminder.ActionUpdate)
 }
 
 func (l *Remind) AfterDelete(db *gorm.DB) error {
-	return addRecord(db, mindreminder.ActionDelete)
+	return addRecordRemindToCalculate(db, mindreminder.ActionDelete)
 }
 
 // Writes new reminder row to db.
-func addRecord(db *gorm.DB, action string) error {
+func addRecordRemindToCalculate(db *gorm.DB, action string) error {
 	r, err := newRemindToCalculate(db, action)
 	if err != nil {
 		return nil
 	}
 	return db.Model(&r).Create(&r).Error
+}
+
+func NewBaseReminder(l interface{}, description string, remindType string) (Reminder, error) {
+	raw, err := mindreminder.InterfaceToJsonString(&l)
+	if err != nil {
+		return Reminder{}, err
+	}
+	return Reminder{
+		Description:  &description,
+		ReminderType: remindType,
+		ObjectRaw:    raw,
+		ObjectType:   reflect.TypeOf(l).Elem().Name(),
+	}, nil
 }
