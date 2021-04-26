@@ -3,7 +3,7 @@ package controllers
 import (
 	"reflect"
 
-	models "github.com/Mind-Informatica-srl/mind-reminder/internal/models"
+	models "github.com/Mind-Informatica-srl/mind-reminder/pkg/models"
 	"gorm.io/gorm"
 )
 

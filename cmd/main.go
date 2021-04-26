@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	v1 "github.com/Mind-Informatica-srl/mind-reminder/internal/api/v1"
-	mindreminder "github.com/Mind-Informatica-srl/mind-reminder/internal/models"
+	mindreminder "github.com/Mind-Informatica-srl/mind-reminder/pkg"
+	models "github.com/Mind-Informatica-srl/mind-reminder/pkg/models"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +19,7 @@ type Utente struct {
 	JwtToken  *string `gorm:"-"`
 	RuoloID   int
 
-	*mindreminder.Remind
+	*models.Remind
 }
 
 func (u Utente) LogDescription() string {
@@ -30,11 +30,11 @@ func (r *Utente) TableName() string {
 	return strings.ToLower("Utenti")
 }
 
-func (l *Utente) Reminders(db *gorm.DB) (toInsert []mindreminder.Reminder, toDelete []mindreminder.Reminder, err error) {
-	toInsert = []mindreminder.Reminder{}
-	toDelete = []mindreminder.Reminder{}
+func (l *Utente) Reminders(db *gorm.DB) (toInsert []models.Reminder, toDelete []models.Reminder, err error) {
+	toInsert = []models.Reminder{}
+	toDelete = []models.Reminder{}
 	err = nil
-	newEl, err := mindreminder.NewBaseReminder(l, "Test", "Scadenza")
+	newEl, err := models.NewBaseReminder(l, "Test", "Scadenza")
 	if err != nil {
 		return
 	}
@@ -45,7 +45,7 @@ func (l *Utente) Reminders(db *gorm.DB) (toInsert []mindreminder.Reminder, toDel
 	// if err = db.Model(oldEl).First(&oldEl).Error; err != nil {
 	// 	return
 	// }
-	oldEl := mindreminder.Reminder{
+	oldEl := models.Reminder{
 		ReminderType: "Scadenza",
 		ObjectType:   "Utente",
 	}
@@ -58,7 +58,7 @@ func main() {
 	structList := []interface{}{
 		Utente{},
 	}
-	if err := v1.StartService(structList); err != nil {
+	if err := mindreminder.StartService(structList); err != nil {
 		log.Fatal(err)
 	}
 
