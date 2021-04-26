@@ -3,9 +3,7 @@ package main
 import (
 	"log"
 	"strings"
-	"time"
 
-	mindlogger "github.com/Mind-Informatica-srl/mind-logger"
 	v1 "github.com/Mind-Informatica-srl/mind-reminder/internal/api/v1"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/models"
 	"gorm.io/gorm"
@@ -39,23 +37,11 @@ func (l Utente) Reminders(db *gorm.DB) (toInsert []models.Reminder, toDelete []m
 }
 
 func main() {
-	mindlogger.CreateLogFolder()
-	appLog := mindlogger.CreateLogger()
-	timeStart := time.Now()
-	appLog.AppendLn("SERVICE START: " + timeStart.Format("01-02-2006"))
 	structList := []interface{}{
 		Utente{},
 	}
-	v1.RegisterTypes(structList)
-	if err := v1.RicalcolaScadenze(appLog); err != nil {
-		appLog.Prepend(err.Error())
-		appLog.PrependLn("ERROR")
-		timeEnd := time.Now()
-		appLog.AppendLn("SERVICE END: " + timeEnd.Format("01-02-2006"))
-		appLog.WriteLog()
+	if err := v1.StartService(structList); err != nil {
 		log.Fatal(err)
 	}
-	timeEnd := time.Now()
-	appLog.AppendLn("SERVICE END: " + timeEnd.Format("01-02-2006"))
-	appLog.WriteLog()
+
 }
