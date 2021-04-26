@@ -12,7 +12,11 @@
             "program": "${workspaceFolder}/cmd",
             "env": {
                 "DB_HOST": "localhost",
-                "MAIN_DESTINATION_FOLDER":"../mindreminder_logs"
+                "MAIN_DESTINATION_FOLDER":"../mindreminder_logs",
+                "TO_MAIL_ERROR":"l.bolognesi@mind-informatica.com",
+                "SERVER_NAME_MAIL_ERROR":"smtps.aruba.it:465",
+                "USERNAME_MAIL_ERROR":"noreply@eirdoc.it",
+                "PASSWORD_MAIL_ERROR":"2020ohsmind"
             }
         }
     ]

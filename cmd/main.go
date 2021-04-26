@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"strings"
 	"time"
@@ -31,9 +32,6 @@ func (r *Utente) TableName() string {
 }
 
 func (l *Utente) Reminders(db *gorm.DB) (toInsert []models.Reminder, toDelete []models.Reminder, err error) {
-	toInsert = []models.Reminder{}
-	toDelete = []models.Reminder{}
-	err = nil
 	newEl, err := models.NewBaseReminder(l, "Test", "Scadenza")
 	if err != nil {
 		return
@@ -41,16 +39,14 @@ func (l *Utente) Reminders(db *gorm.DB) (toInsert []models.Reminder, toDelete []
 	newEl.ExpireAt = time.Now()
 	toInsert = append(toInsert, newEl)
 
-	// var oldEl models.Reminder
-	// if err = db.Model(oldEl).First(&oldEl).Error; err != nil {
-	// 	return
-	// }
-	oldEl := models.Reminder{
-		ReminderType: "Scadenza",
-		ObjectType:   "Utente",
+	var oldEl models.Reminder
+	if err = db.Model(oldEl).First(&oldEl).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
+		return
 	}
 	toDelete = append(toDelete, oldEl)
-
 	return
 }
 
@@ -58,7 +54,7 @@ func main() {
 	structList := []interface{}{
 		Utente{},
 	}
-	if err := mindreminder.StartService(structList); err != nil {
+	if err := mindreminder.StartService(structList, "test"); err != nil {
 		log.Fatal(err)
 	}
 

@@ -1,7 +1,12 @@
 package mindreminder
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net"
+	"net/mail"
+	"net/smtp"
+	"os"
 	"reflect"
 	"time"
 
@@ -11,21 +16,32 @@ import (
 	"gorm.io/gorm"
 )
 
-func StartService(structList []interface{}) error {
+const (
+	ToEmailError       = "TO_MAIL_ERROR"
+	UsernameEmailError = "USERNAME_MAIL_ERROR"
+	PasswordMailError  = "PASSWORD_MAIL_ERROR"
+	ServerMailError    = "SERVER_NAME_MAIL_ERROR"
+)
+
+func StartService(structList []interface{}, appName string) error {
 	mindlogger.CreateLogFolder()
 	appLog := mindlogger.CreateLogger()
 	timeStart := time.Now()
-	appLog.AppendLn("SERVICE START: " + timeStart.Format("01-02-2006"))
+	appLog.AppendLn(appName + " SERVICE START: " + timeStart.Format("01-02-2006"))
 
 	RegisterTypes(structList)
 	if err := RicalcolaScadenze(appLog); err != nil {
-		appLog.Prepend(err.Error())
-		appLog.PrependLn("ERROR")
 		timeEnd := time.Now()
 		appLog.AppendLn("SERVICE END: " + timeEnd.Format("01-02-2006"))
-		//si invia email per comunicare errore
-		//msg := appLog.String()
-		//sendMail("destinatario@mail.com", msg, "MIND REMINDER ERROR")
+		appLog.AppendLn(fmt.Sprintf("EXECUTION TIME: %v sec.", timeEnd.Sub(timeStart).Seconds()))
+		appLog.PrependLn(err.Error())
+		appLog.PrependLn("ERROR")
+		dest := os.Getenv(ToEmailError)
+		if dest != "" {
+			//si invia email per comunicare errore
+			msg := appLog.String()
+			sendMail(dest, msg, appName+": MIND REMINDER ERROR")
+		}
 		appLog.WriteLog()
 		return err
 	}
@@ -64,7 +80,6 @@ func RicalcolaScadenze(appLog *mindlogger.AppLogger) error {
 	}); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -81,10 +96,10 @@ func RegisterTypes(myTypes []interface{}) {
 	}
 }
 
-/*
 func sendMail(mailto string, body string, subj string) error {
+	mailFrom := os.Getenv(UsernameEmailError)
 	from := mail.Address{
-		Address: mrs.MittenteEmail.Username,
+		Address: mailFrom,
 	}
 	to := mail.Address{
 		Address: mailto,
@@ -104,7 +119,7 @@ func sendMail(mailto string, body string, subj string) error {
 	message += "\r\n" + body
 
 	// Connect to the SMTP Server
-	servername := mrs.MittenteEmail.ServerName //"smtps.aruba.it:465"
+	servername := os.Getenv(ServerMailError)
 
 	host, _, err := net.SplitHostPort(servername)
 	if err != nil {
@@ -130,7 +145,7 @@ func sendMail(mailto string, body string, subj string) error {
 		return err
 	}
 
-	auth := smtp.PlainAuth("", mrs.MittenteEmail.Username, mrs.MittenteEmail.Password, host)
+	auth := smtp.PlainAuth("", mailFrom, os.Getenv(PasswordMailError), host)
 	// Auth
 	if err = c.Auth(auth); err != nil {
 		return err
@@ -164,4 +179,3 @@ func sendMail(mailto string, body string, subj string) error {
 	c.Quit()
 	return nil
 }
-*/

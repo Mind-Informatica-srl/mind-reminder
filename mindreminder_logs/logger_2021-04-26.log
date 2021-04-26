@@ -154,3 +154,59 @@ SERVICE END: 04-26-2021
 /Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:19
 [3.509ms] [rows:0] SELECT object_id, object_type FROM "remind_to_calculate" WHERE elaborated_at is null GROUP BY object_id, object_type
 SERVICE END: 04-26-2021
+
+2021/04/26 15:35:09 SERVICE START: 04-26-2021
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:19
+[3.051ms] [rows:3] SELECT object_id, object_type FROM "remind_to_calculate" WHERE elaborated_at is null GROUP BY object_id, object_type
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:23
+[1.647ms] [rows:1] SELECT * FROM "remind_to_calculate" WHERE object_id = '{"ID":"4"}' and object_type = 'Utente' and elaborated_at is null ORDER BY created_at desc,"remind_to_calculate"."id" LIMIT 1
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:23
+[0.387ms] [rows:1] SELECT * FROM "remind_to_calculate" WHERE object_id = '{"ID":"1"}' and object_type = 'Ruolo' and elaborated_at is null ORDER BY created_at desc,"remind_to_calculate"."id" LIMIT 1
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:23
+[0.328ms] [rows:1] SELECT * FROM "remind_to_calculate" WHERE object_id = '{"ID":"1"}' and object_type = 'Utente' and elaborated_at is null ORDER BY created_at desc,"remind_to_calculate"."id" LIMIT 1
+/Users/lorenzo/Progetti/mind-reminder/cmd/main.go:45 record not found
+[1.168ms] [rows:0] SELECT * FROM "reminder" ORDER BY "reminder"."id" LIMIT 1
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:33
+[0.845ms] [rows:2] UPDATE "remind_to_calculate" SET "elaborated_at"='2021-04-26 15:35:09.705',"error"='record not found' WHERE created_at < '2021-04-26 15:35:09.705' AND (object_id = '{"ID":"4"}' and object_type = 'Utente' and elaborated_at is null)
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:33
+[0.288ms] [rows:3] UPDATE "remind_to_calculate" SET "elaborated_at"='2021-04-26 15:35:09.705',"error"='Missing ObjectType Ruolo in typeRegistry' WHERE created_at < '2021-04-26 15:35:09.705' AND (object_id = '{"ID":"1"}' and object_type = 'Ruolo' and elaborated_at is null)
+/Users/lorenzo/Progetti/mind-reminder/cmd/main.go:45 record not found
+[0.126ms] [rows:0] SELECT * FROM "reminder" ORDER BY "reminder"."id" LIMIT 1
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:33
+[0.317ms] [rows:5] UPDATE "remind_to_calculate" SET "elaborated_at"='2021-04-26 15:35:09.705',"error"='record not found' WHERE created_at < '2021-04-26 15:35:09.705' AND (object_id = '{"ID":"1"}' and object_type = 'Utente' and elaborated_at is null)
+SERVICE END: 04-26-2021
+EXECUTION TIME: 0.009531999 sec.
+
+2021/04/26 15:38:00 SERVICE START: 04-26-2021
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:19
+[3.888ms] [rows:0] SELECT object_id, object_type FROM "remind_to_calculate" WHERE elaborated_at is null GROUP BY object_id, object_type
+SERVICE END: 04-26-2021
+EXECUTION TIME: 0.004678823 sec.
+
+2021/04/26 15:38:23 SERVICE START: 04-26-2021
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:19
+[2.934ms] [rows:1] SELECT object_id, object_type FROM "remind_to_calculate" WHERE elaborated_at is null GROUP BY object_id, object_type
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:23
+[1.560ms] [rows:1] SELECT * FROM "remind_to_calculate" WHERE object_id = '{"ID":"1"}' and object_type = 'Utente' and elaborated_at is null ORDER BY created_at desc,"remind_to_calculate"."id" LIMIT 1
+/Users/lorenzo/Progetti/mind-reminder/cmd/main.go:46 record not found
+[0.842ms] [rows:0] SELECT * FROM "reminder" ORDER BY "reminder"."id" LIMIT 1
+/Users/lorenzo/go/pkg/mod/gorm.io/driver/postgres@v1.0.8/postgres.go:166
+[0.101ms] [rows:0] SAVEPOINT sp0x14d0be0
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindercontroller.go:30
+[0.958ms] [rows:1] INSERT INTO "reminder" ("description","reminder_type","object_raw","object_type","expire_at","accomplished_at","percentage","status_description","visibility") VALUES ('Test','Scadenza','{"ID":1,"Username":"lamicolor","Nome":"Simone","Cognome":"Rocchi","JwtToken":null,"RuoloID":1}','Utente','2021-04-26 15:38:23.56',NULL,0.000000,NULL,NULL) RETURNING "created_at","id"
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:33
+[0.546ms] [rows:1] UPDATE "remind_to_calculate" SET "elaborated_at"='2021-04-26 15:38:23.555' WHERE created_at < '2021-04-26 15:38:23.555' AND (object_id = '{"ID":"1"}' and object_type = 'Utente' and elaborated_at is null)
+SERVICE END: 04-26-2021
+EXECUTION TIME: 0.008186003 sec.
+
+2021/04/26 15:47:27 SERVICE START: 04-26-2021
+/Users/lorenzo/Progetti/mind-reminder/internal/api/v1/controllers/remindtocalculatecontroller.go:19
+[3.573ms] [rows:0] SELECT object_id, object_type FROM "remind_to_calculate" WHERE elaborated_at is null GROUP BY object_id, object_type
+SERVICE END: 04-26-2021
+EXECUTION TIME: 0.004089643 sec.
+
+2021/04/26 16:11:24 ERROR
+test
+test SERVICE START: 04-26-2021
+SERVICE END: 04-26-2021
+EXECUTION TIME: 1.346887913 sec.
