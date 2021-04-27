@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
+	"net/http"
 	"net/mail"
 	"net/smtp"
 	"os"
@@ -94,6 +95,12 @@ func RegisterTypes(myTypes []interface{}) {
 		structType := reflect.TypeOf(v)
 		typeRegistry[structType.Name()] = structType
 	}
+}
+
+//restituisce tutti i reminders
+//gestisce la paginazione
+func GetAllReminders(w http.ResponseWriter, r *http.Request) {
+	controllers.GetAllReminders(w, r)
 }
 
 func sendMail(mailto string, body string, subj string) error {
