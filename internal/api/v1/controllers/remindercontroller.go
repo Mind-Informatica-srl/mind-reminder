@@ -78,7 +78,7 @@ func UpdateReminders(db *gorm.DB, el *models.RemindToCalculate, typeRegistry map
 		return err
 	}
 	//si ricavano le scadenze da cancellare e quelle da inserire
-	toInsertList, toDeleteList, err := obj.Reminders(db)
+	toInsertList, toDeleteList, err := obj.Reminders(db, el.Action)
 	if err != nil {
 		return err
 	}

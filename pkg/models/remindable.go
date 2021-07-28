@@ -6,7 +6,7 @@ import (
 
 type Remindable interface {
 	// deve restituire slice dei reminder da inserire, slice dei reminder da cancellare e l'eventualem errore
-	Reminders(*gorm.DB) ([]Reminder, []Reminder, error)
+	Reminders(*gorm.DB, string) ([]Reminder, []Reminder, error)
 	//viene chiamato da gorm dopo insert
 	AfterCreate(*gorm.DB) error
 	//viene chiamato da gorm dopo update

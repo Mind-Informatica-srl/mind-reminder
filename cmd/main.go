@@ -31,7 +31,7 @@ func (r *Utente) TableName() string {
 	return strings.ToLower("Utenti")
 }
 
-func (l *Utente) Reminders(db *gorm.DB) (toInsert []models.Reminder, toDelete []models.Reminder, err error) {
+func (l *Utente) Reminders(db *gorm.DB, action string) (toInsert []models.Reminder, toDelete []models.Reminder, err error) {
 	newEl, err := models.NewBaseReminder(l, "Test", "Scadenza")
 	if err != nil {
 		return

@@ -9,11 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
-//struct delle modifiche da cui si dovranno calcolare le scadenze (Reminder)
+// struct delle modifiche da cui si dovranno calcolare le scadenze (Reminder)
 type RemindToCalculate struct {
 	// Primary key of reminders.
 	ID int //uuid.UUID `gorm:"primary_key;"`
-	//azione che ha scatenato l'insert del rigo
+	// azione che ha scatenato l'insert del rigo
 	Action string
 	// ID of tracking object.
 	// By this ID later you can find all object (database row) changes.
