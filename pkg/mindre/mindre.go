@@ -38,6 +38,11 @@ func (l *Remind) AfterDelete(db *gorm.DB) error {
 	return calc.AddRecordRemindToCalculate(db, utils.ActionDelete)
 }
 
+func NewBaseReminder(l interface{}, description string, remindType string) (Reminder, error) {
+	e, err := calc.NewBaseReminder(l, description, remindType)
+	return Reminder(e), err
+}
+
 func StartService(structList []interface{}, appName string) error {
 
 	calc.RegisterTypes(structList)
