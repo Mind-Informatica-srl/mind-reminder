@@ -1,4 +1,4 @@
-package model
+package mindre
 
 import (
 	"encoding/json"

@@ -1,4 +1,4 @@
-package calc
+package mindre
 
 import (
 	"crypto/tls"
@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
-	"github.com/Mind-Informatica-srl/mind-reminder/internal/model"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/utils"
 	"gorm.io/gorm"
 )
@@ -30,7 +29,7 @@ const (
 var typeRegistry = make(map[string]reflect.Type)
 
 // typeRegistry["MyStruct"] = reflect.TypeOf(MyStruct{})
-func RegisterTypes(myTypes []interface{}) {
+func registerTypes(myTypes []interface{}) {
 	for _, v := range myTypes {
 		structType := reflect.TypeOf(v)
 		typeRegistry[structType.Name()] = structType
@@ -38,34 +37,34 @@ func RegisterTypes(myTypes []interface{}) {
 }
 
 //si aggiornano tutte le righe di remind_to_calculate che hanno stesso object_id, object_type, created_at precedente a timeStart e elaborated_at null
-func UpdateCorrelatedRemindToCalculate(db *gorm.DB, toCalculate *model.RemindToCalculate, timeStart time.Time, errorString *string) error {
-	if err := db.Model(model.RemindToCalculate{}).Scopes(filterNotElaborated(toCalculate.ObjectID, toCalculate.ObjectType)).Where("created_at < ?", timeStart).Updates(model.RemindToCalculate{ElaboratedAt: &timeStart, Error: errorString}).Error; err != nil {
+func updateCorrelatedRemindToCalculate(db *gorm.DB, toCalculate *RemindToCalculate, timeStart time.Time, errorString *string) error {
+	if err := db.Model(RemindToCalculate{}).Scopes(filterNotElaborated(toCalculate.ObjectID, toCalculate.ObjectType)).Where("created_at < ?", timeStart).Updates(RemindToCalculate{ElaboratedAt: &timeStart, Error: errorString}).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
 //avvia il ricalcolo delle scadenze a partire dalla tabella remind_to_calculate per le righe in cui la data di lavorazione è null
-func RicalcolaScadenze() error {
+func ricalcolaScadenze() error {
 	db := config.Current().DB
 	if err := db.Transaction(func(db *gorm.DB) error {
 		//si ricava l'orario attuale (servirà poi per l'update su remind_to_calculate)
 		timeStart := time.Now()
 		//si ricavano le righe da remind_to_calculate che non sono ancora state lavorate
-		toCalculateList, err := GetRemindToCalculate(db)
+		toCalculateList, err := getRemindToCalculate(db)
 		if err != nil {
 			return err
 		}
 		//si lavora ogni rigo della lista
 		for _, toCalculate := range toCalculateList {
 			var errorString *string
-			if err := UpdateReminders(db, &toCalculate, typeRegistry); err != nil {
+			if err := updateReminders(db, &toCalculate, typeRegistry); err != nil {
 				//si scrive l'eventuale errore in errorString
 				e := err.Error()
 				errorString = &e
 			}
 			//si aggiornano tutte le righe di remind_to_calculate che hanno stesso object_id, object_type, created_at precedente a timeStart e elaborated_at null
-			if err := UpdateCorrelatedRemindToCalculate(db, &toCalculate, timeStart, errorString); err != nil {
+			if err := updateCorrelatedRemindToCalculate(db, &toCalculate, timeStart, errorString); err != nil {
 				return err
 			}
 		}
@@ -81,8 +80,8 @@ func RicalcolaScadenze() error {
 //si trascurano quindi le righe più vecchie (verranno comunque aggiornate dal servizio)
 //(se abbiamo due righe non ancora lavorate con stesso object_id e object_type non ha infatti senso eseguire due volte il ricalcolo delle scadenze.
 //Faremo il ricalcolo prendendo solo il rigo con created_at più recente)
-func GetRemindToCalculate(db *gorm.DB) ([]model.RemindToCalculate, error) {
-	var list []model.RemindToCalculate
+func getRemindToCalculate(db *gorm.DB) ([]RemindToCalculate, error) {
+	var list []RemindToCalculate
 	if err := db.Select("object_id, object_type").Group("object_id, object_type").Where("elaborated_at is null").Find(&list).Error; err != nil {
 		return nil, err
 	}
@@ -101,9 +100,9 @@ func filterNotElaborated(objectID string, objectType string) func(db *gorm.DB) *
 	}
 }
 
-func UpdateReminders(db *gorm.DB, el *model.RemindToCalculate, typeRegistry map[string]reflect.Type) error {
+func updateReminders(db *gorm.DB, el *RemindToCalculate, typeRegistry map[string]reflect.Type) error {
 	//si ricava object da RemindToCalculate
-	obj, err := GetObjectFromRemindToCalculate(el, typeRegistry)
+	obj, err := getObjectFromRemindToCalculate(el, typeRegistry)
 	if err != nil {
 		return err
 	}
@@ -131,7 +130,7 @@ func UpdateReminders(db *gorm.DB, el *model.RemindToCalculate, typeRegistry map[
 }
 
 //restituisce ObjectRaw (json) sotto forma di struct sfruttando typeRegistry per ricavare il tipo di struct da ObjectType
-func GetObjectFromRemindToCalculate(el *model.RemindToCalculate, typeRegistry map[string]reflect.Type) (model.Remindable, error) {
+func getObjectFromRemindToCalculate(el *RemindToCalculate, typeRegistry map[string]reflect.Type) (remindable, error) {
 	// si ricava il tipo di struct da ObjectType
 	if t, ok := typeRegistry[el.ObjectType]; ok {
 		//si converte ObjectRaw (json) in struct e si mette dentro Object di el
@@ -142,7 +141,7 @@ func GetObjectFromRemindToCalculate(el *model.RemindToCalculate, typeRegistry ma
 		return nil, errors.New("Missing ObjectType " + el.ObjectType + " in typeRegistry")
 	}
 	//si esegue il cast per vedere che implementi correttamente Remindable
-	obj, ok := el.Object.(model.Remindable)
+	obj, ok := el.Object.(remindable)
 	if !ok {
 		return nil, errors.New("Error in cast el.Object in models.Remindable")
 	}
@@ -234,20 +233,20 @@ func sendMail(mailto string, body string, subj string) error {
 }
 
 // Writes new reminder row to db.
-func AddRecordRemindToCalculate(db *gorm.DB, action string) error {
-	r, err := model.NewRemindToCalculate(db, action)
+func addRecordRemindToCalculate(db *gorm.DB, action string) error {
+	r, err := NewRemindToCalculate(db, action)
 	if err != nil {
 		return nil
 	}
 	return db.Model(&r).Create(&r).Error
 }
 
-func NewBaseReminder(l interface{}, description string, remindType string) (model.Reminder, error) {
+func newBaseReminder(l interface{}, description string, remindType string) (Reminder, error) {
 	raw, err := utils.StructToMap(&l)
 	if err != nil {
-		return model.Reminder{}, err
+		return Reminder{}, err
 	}
-	return model.Reminder{
+	return Reminder{
 		Description:  &description,
 		ReminderType: remindType,
 		ObjectRaw:    raw,

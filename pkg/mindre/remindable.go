@@ -1,10 +1,10 @@
-package model
+package mindre
 
 import "gorm.io/gorm"
 
-type Remindable interface {
+type remindable interface {
 	// deve restituire slice dei reminder da inserire, slice dei reminder da cancellare e l'eventualem errore
-	Reminders(*gorm.DB, string) ([]Reminder, []Reminder, string, error)
+	Reminders(db *gorm.DB, action string) (toInsert []Reminder, toDelete []Reminder, err error)
 	//viene chiamato da gorm dopo insert
 	AfterCreate(*gorm.DB) error
 	//viene chiamato da gorm dopo update
