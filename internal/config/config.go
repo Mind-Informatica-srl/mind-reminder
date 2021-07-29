@@ -4,13 +4,8 @@ package config
 
 import (
 	"fmt"
-	"log"
-	"os"
-	"time"
 
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 // Data contain all the configuration parameters
@@ -44,28 +39,10 @@ func Current() *Data {
 }
 
 // Create create a configuration
-func Create(dsn string, production bool) (*Data, error) {
+func Create(db *gorm.DB) (*Data, error) {
 	var err error
-	config := &Data{}
-
-	gormConfig := &gorm.Config{}
-	if production {
-		gormConfig.Logger = logger.Discard
-	} else {
-		gormConfig.Logger = logger.New(
-			log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-			logger.Config{
-				SlowThreshold:             time.Second, // Slow SQL threshold
-				LogLevel:                  logger.Info, // Log level
-				IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
-				Colorful:                  true,        // Enable color
-			},
-		)
-
-	}
-
-	if config.DB, err = gorm.Open(postgres.Open(dsn), gormConfig); err != nil {
-		return nil, err
+	config := &Data{
+		DB: db,
 	}
 
 	return config, err

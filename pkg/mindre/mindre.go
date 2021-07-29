@@ -44,8 +44,8 @@ func NewBaseReminder(l interface{}, description string, remindType string) (Remi
 	return Reminder(e), err
 }
 
-func StartService(structList []interface{}, appName string, dsn string, production bool) error {
-	if _, err := config.Create(dsn, production); err != nil {
+func StartService(structList []interface{}, appName string, db *gorm.DB) error {
+	if _, err := config.Create(db); err != nil {
 		return err
 	}
 	calc.RegisterTypes(structList)
