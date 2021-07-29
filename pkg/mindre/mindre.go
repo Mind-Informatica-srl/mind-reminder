@@ -1,6 +1,8 @@
 package mindre
 
 import (
+	"reflect"
+
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/utils"
 	"gorm.io/gorm"
@@ -37,4 +39,17 @@ func StartService(structList []interface{}, appName string, db *gorm.DB) error {
 		return err
 	}
 	return nil
+}
+
+func NewBaseReminder(l interface{}, description string, remindType string) (Reminder, error) {
+	raw, err := utils.StructToMap(&l)
+	if err != nil {
+		return Reminder{}, err
+	}
+	return Reminder{
+		Description:  &description,
+		ReminderType: remindType,
+		ObjectRaw:    raw,
+		ObjectType:   reflect.TypeOf(l).Elem().Name(),
+	}, nil
 }

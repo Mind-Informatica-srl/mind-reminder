@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
-	"github.com/Mind-Informatica-srl/mind-reminder/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -239,17 +238,4 @@ func addRecordRemindToCalculate(db *gorm.DB, action string) error {
 		return nil
 	}
 	return db.Model(&r).Create(&r).Error
-}
-
-func newBaseReminder(l interface{}, description string, remindType string) (Reminder, error) {
-	raw, err := utils.StructToMap(&l)
-	if err != nil {
-		return Reminder{}, err
-	}
-	return Reminder{
-		Description:  &description,
-		ReminderType: remindType,
-		ObjectRaw:    raw,
-		ObjectType:   reflect.TypeOf(l).Elem().Name(),
-	}, nil
 }
