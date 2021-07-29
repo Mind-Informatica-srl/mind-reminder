@@ -2,6 +2,7 @@ package mindre
 
 import (
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/calc"
+	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/model"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/utils"
 	"gorm.io/gorm"
@@ -43,8 +44,10 @@ func NewBaseReminder(l interface{}, description string, remindType string) (Remi
 	return Reminder(e), err
 }
 
-func StartService(structList []interface{}, appName string) error {
-
+func StartService(structList []interface{}, appName string, dsn string, production bool) error {
+	if _, err := config.Create(dsn, production); err != nil {
+		return err
+	}
 	calc.RegisterTypes(structList)
 	if err := calc.RicalcolaScadenze(); err != nil {
 		return err
