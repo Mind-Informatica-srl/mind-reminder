@@ -1,11 +1,11 @@
-package mindreminder
+package model
 
 import (
 	"encoding/json"
 	"reflect"
 	"time"
 
-	mindreminder "github.com/Mind-Informatica-srl/mind-reminder"
+	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
 	"gorm.io/gorm"
 )
 
@@ -41,14 +41,14 @@ func (t *RemindToCalculate) TableName() string {
 }
 
 //restituisce uno slice di scadenze
-func newRemindToCalculate(db *gorm.DB, action string) (RemindToCalculate, error) {
-	rawObjectString, err := mindreminder.InterfaceToJsonString(db.Statement.Model)
+func NewRemindToCalculate(db *gorm.DB, action string) (RemindToCalculate, error) {
+	rawObjectString, err := config.InterfaceToJsonString(db.Statement.Model)
 	if err != nil {
 		return RemindToCalculate{}, err
 	}
 	return RemindToCalculate{
 		Action:     action,
-		ObjectID:   mindreminder.GetPrimaryKeyValue(db),
+		ObjectID:   config.GetPrimaryKeyValue(db),
 		ObjectType: db.Statement.Schema.ModelType.Name(),
 		ObjectRaw:  rawObjectString,
 	}, nil

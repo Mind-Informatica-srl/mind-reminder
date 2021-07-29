@@ -1,4 +1,4 @@
-package mindreminder
+package config
 
 import (
 	"encoding/json"

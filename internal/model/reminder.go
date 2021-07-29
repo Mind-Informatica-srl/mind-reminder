@@ -1,4 +1,4 @@
-package mindreminder
+package model
 
 import "time"
 
@@ -29,4 +29,17 @@ type Reminder struct {
 
 func (t *Reminder) TableName() string {
 	return "reminder"
+}
+
+// SetPK set the pk for the model
+func (t *Reminder) SetPK(pk interface{}) error {
+	id := pk.(int)
+	t.ID = id
+	return nil
+}
+
+// VerifyPK check the pk value
+func (t *Reminder) VerifyPK(pk interface{}) (bool, error) {
+	id := pk.(int)
+	return t.ID == id, nil
 }
