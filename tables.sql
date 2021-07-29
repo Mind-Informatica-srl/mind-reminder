@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS public.reminder
     percentage numeric,
     status_description text,
     visibility text,
+    object_id text,
     CONSTRAINT reminder_pkey PRIMARY KEY
 (id)
 );
