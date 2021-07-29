@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Mind-Informatica-srl/mind-reminder/internal/calc"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/model"
 	"github.com/Mind-Informatica-srl/mind-reminder/pkg/mindre"
 	"gorm.io/gorm"
@@ -32,12 +33,12 @@ func (r *Utente) TableName() string {
 }
 
 func (l *Utente) Reminders(db *gorm.DB, action string) (toInsert []model.Reminder, toDelete []model.Reminder, err error) {
-	newEl, err := mindre.NewBaseReminder(l, "Test", "Scadenza")
+	newEl, err := calc.NewBaseReminder(l, "Test", "Scadenza")
 	if err != nil {
 		return
 	}
 	newEl.ExpireAt = time.Now()
-	toInsert = append(toInsert, newEl)
+	toInsert = append(toInsert, model.Reminder(newEl))
 
 	var oldEl model.Reminder
 	if err = db.Model(oldEl).First(&oldEl).Error; err != nil {

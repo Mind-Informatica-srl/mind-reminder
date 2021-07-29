@@ -240,3 +240,16 @@ func AddRecordRemindToCalculate(db *gorm.DB, action string) error {
 	}
 	return db.Model(&r).Create(&r).Error
 }
+
+func NewBaseReminder(l interface{}, description string, remindType string) (model.Reminder, error) {
+	raw, err := config.InterfaceToJsonString(&l)
+	if err != nil {
+		return model.Reminder{}, err
+	}
+	return model.Reminder{
+		Description:  &description,
+		ReminderType: remindType,
+		ObjectRaw:    raw,
+		ObjectType:   reflect.TypeOf(l).Elem().Name(),
+	}, nil
+}
