@@ -40,10 +40,9 @@ func Current() *Data {
 
 // Create create a configuration
 func Create(db *gorm.DB) (*Data, error) {
-	var err error
-	config := &Data{
+	currentConfiguration = &Data{
 		DB: db,
 	}
 
-	return config, err
+	return currentConfiguration, nil
 }
