@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/Mind-Informatica-srl/restapi/pkg/models"
+)
 
 //struct delle scadenze
 type Reminder struct {
@@ -10,7 +14,9 @@ type Reminder struct {
 	//Tipo della scadenza
 	ReminderType string
 	//json dell'oggetto
-	ObjectRaw string `gorm:"type:json"`
+	ObjectRaw models.JSONB
+	// id dell'oggetto
+	ObjectID string
 	//tipo della model dell'oggetto
 	ObjectType string
 	//Data Scadenza

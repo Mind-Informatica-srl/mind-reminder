@@ -2,8 +2,8 @@ package mindre
 
 import (
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/calc"
-	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/model"
+	"github.com/Mind-Informatica-srl/mind-reminder/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -27,15 +27,15 @@ func (l *Remind) Reminders(db *gorm.DB) (toInsert []Reminder, toDelete []Reminde
 }
 
 func (l *Remind) AfterCreate(db *gorm.DB) error {
-	return calc.AddRecordRemindToCalculate(db, config.ActionCreate)
+	return calc.AddRecordRemindToCalculate(db, utils.ActionCreate)
 }
 
 func (l *Remind) AfterUpdate(db *gorm.DB) error {
-	return calc.AddRecordRemindToCalculate(db, config.ActionUpdate)
+	return calc.AddRecordRemindToCalculate(db, utils.ActionUpdate)
 }
 
 func (l *Remind) AfterDelete(db *gorm.DB) error {
-	return calc.AddRecordRemindToCalculate(db, config.ActionDelete)
+	return calc.AddRecordRemindToCalculate(db, utils.ActionDelete)
 }
 
 func StartService(structList []interface{}, appName string) error {

@@ -13,6 +13,7 @@ import (
 
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/model"
+	"github.com/Mind-Informatica-srl/mind-reminder/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -242,7 +243,7 @@ func AddRecordRemindToCalculate(db *gorm.DB, action string) error {
 }
 
 func NewBaseReminder(l interface{}, description string, remindType string) (model.Reminder, error) {
-	raw, err := config.InterfaceToJsonString(&l)
+	raw, err := utils.StructToMap(&l)
 	if err != nil {
 		return model.Reminder{}, err
 	}

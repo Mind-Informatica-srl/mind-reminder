@@ -5,7 +5,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
+	"github.com/Mind-Informatica-srl/mind-reminder/internal/utils"
+	"github.com/Mind-Informatica-srl/restapi/pkg/models"
 	"gorm.io/gorm"
 )
 
@@ -24,7 +25,7 @@ type RemindToCalculate struct {
 	ObjectType string //`gorm:"index"`
 	// Raw representation of tracking object.
 	// todo(@sas1024): Replace with []byte, to reduce allocations. Would be major version.
-	ObjectRaw string `gorm:"type:json"`
+	ObjectRaw models.JSONB `gorm:"type:json"`
 	// Timestamp, when reminder was created.
 	CreatedAt time.Time `gorm:"default:now()"`
 	//data della lavorazione del calcolo della scadenza
@@ -42,13 +43,13 @@ func (t *RemindToCalculate) TableName() string {
 
 //restituisce uno slice di scadenze
 func NewRemindToCalculate(db *gorm.DB, action string) (RemindToCalculate, error) {
-	rawObjectString, err := config.InterfaceToJsonString(db.Statement.Model)
+	rawObjectString, err := utils.StructToMap(db.Statement.Model)
 	if err != nil {
 		return RemindToCalculate{}, err
 	}
 	return RemindToCalculate{
 		Action:     action,
-		ObjectID:   config.GetPrimaryKeyValue(db),
+		ObjectID:   utils.GetPrimaryKeyValue(db),
 		ObjectType: db.Statement.Schema.ModelType.Name(),
 		ObjectRaw:  rawObjectString,
 	}, nil
@@ -57,7 +58,12 @@ func NewRemindToCalculate(db *gorm.DB, action string) (RemindToCalculate, error)
 //converte il json object_raw in struct e lo mette dentro Object
 func (r *RemindToCalculate) PrepareObject(objType reflect.Type) error {
 	obj := reflect.New(objType).Interface()
-	err := json.Unmarshal([]byte(r.ObjectRaw), obj)
+	data, err := json.Marshal(r.ObjectRaw) // Convert to a json string
+
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(data, &obj)
 	r.Object = obj
 	return err
 }
