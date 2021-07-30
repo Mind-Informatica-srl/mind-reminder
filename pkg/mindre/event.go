@@ -7,3 +7,11 @@ type Reminder logic.Reminder
 type Event logic.Event
 
 type EventBase logic.EventBase
+
+type Action logic.Action
+
+const (
+	ActionCreate Action = Action(logic.ActionCreate)
+	ActionUpdate        = Action(logic.ActionUpdate)
+	ActionDelete        = Action(logic.ActionDelete)
+)
