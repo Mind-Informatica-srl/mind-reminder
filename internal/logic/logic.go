@@ -15,6 +15,12 @@ import (
 	"gorm.io/gorm"
 )
 
+type B struct{}
+
+func (b B) Doh() {
+
+}
+
 const (
 	ToEmailError       = "TO_MAIL_ERROR"
 	UsernameEmailError = "USERNAME_MAIL_ERROR"
