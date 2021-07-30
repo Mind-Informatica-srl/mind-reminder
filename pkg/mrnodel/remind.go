@@ -1,10 +1,17 @@
 package mrmodel
 
 import (
+	"sort"
 	"time"
 
 	"github.com/Mind-Informatica-srl/restapi/pkg/models"
 )
+
+type accomplishers []Accomplisher
+
+func (a accomplishers) Len() int           { return len(a) }
+func (a accomplishers) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a accomplishers) Less(i, j int) bool { return a[i].AccomplishAt.Before(a[j].AccomplishAt) }
 
 //struct delle scadenze
 type Remind struct {
@@ -37,6 +44,7 @@ type Remind struct {
 // l'assolvenza determinante e quelle in eccedenza
 // TODO: da far restituire i campi accomplished, percentage, e volendo accomplisher o accomplisher.AccomplishAt
 func (r Remind) Accomplished() (accomplished bool, percentage float64, accomplisher Accomplisher, surplus []Accomplisher) {
+	sort.Sort(accomplishers(r.Accomplishers))
 	for _, a := range r.Accomplishers {
 		percentage += a.Percentage
 		if percentage >= 1 && accomplisher.IsZero() {
