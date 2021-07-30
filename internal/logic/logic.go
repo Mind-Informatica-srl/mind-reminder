@@ -133,18 +133,14 @@ func getObjectFromRemindToCalculate(el *RemindToCalculate, typeRegistry map[stri
 	// si ricava il tipo di struct da ObjectType
 	if t, ok := typeRegistry[el.ObjectType]; ok {
 		//si converte ObjectRaw (json) in struct e si mette dentro Object di el
-		if err := el.PrepareObject(t); err != nil {
+		if event, err := el.Event(t); err != nil {
 			return nil, err
+		} else {
+			return *event, nil
 		}
 	} else {
 		return nil, errors.New("Missing ObjectType " + el.ObjectType + " in typeRegistry")
 	}
-	//si esegue il cast per vedere che implementi correttamente Remindable
-	obj, ok := el.Object.(Event)
-	if !ok {
-		return nil, errors.New("Error in cast el.Object in models.Remindable")
-	}
-	return obj, nil
 }
 
 func sendMail(mailto string, body string, subj string) error {
