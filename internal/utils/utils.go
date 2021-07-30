@@ -9,12 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	ActionCreate = "create"
-	ActionUpdate = "update"
-	ActionDelete = "delete"
-)
-
 //restituisce la struct con solo i campi della primary key valorizzati
 func GetPrimaryKeyValue(db *gorm.DB) string {
 	var sb strings.Builder

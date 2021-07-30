@@ -1,43 +1,28 @@
 package main
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type A struct {
-	AField int
+	Uno int
 }
 
 type B struct {
-	AField int
-}
-
-func (b B) Hello() {
-	fmt.Printf("Hello! I'm %d\n", b.AField)
-}
-
-type SayHello interface {
-	Hello()
-}
-
-type SayCiao SayHello
-
-func niceToMeetYou(b B) {
-	fmt.Print("Hi B!")
-	b.Hello()
+	Uno int
+	Due int
 }
 
 func main() {
-	a := A{
-		AField: 3,
+	b := B{
+		Uno: 1,
+		Due: 2,
 	}
-
-	var b interface{}
-	b = B(a)
-	if c, ok := b.(A); ok {
-		d := A(c)
-		fmt.Print(d.AField)
-	} else if c, ok := b.(B); ok {
-		fmt.Print(c)
+	if jb, err := json.Marshal(b); err == nil {
+		var a A
+		if err = json.Unmarshal(jb, &a); err == nil {
+			fmt.Print(a)
+		}
 	}
-
-	//niceToMeetYou(a)
 }

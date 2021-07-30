@@ -15,11 +15,11 @@ CREATE TABLE IF NOT EXISTS public.remind_to_calculate
 );
 -- +goose StatementEnd
 -- +goose StatementBegin
-CREATE TABLE IF NOT EXISTS public.reminder
+CREATE TABLE IF NOT EXISTS public.remind
 (
     id serial NOT NULL,
     description text,
-    reminder_type text not null,
+    remind_type text not null,
     object_raw jsonb,
     object_type text not null,
     expire_at timestamp without time zone,

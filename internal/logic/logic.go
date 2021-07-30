@@ -1,4 +1,4 @@
-package mindre
+package logic
 
 import (
 	"crypto/tls"
@@ -28,7 +28,7 @@ const (
 var typeRegistry = make(map[string]reflect.Type)
 
 // typeRegistry["MyStruct"] = reflect.TypeOf(MyStruct{})
-func registerTypes(myTypes []interface{}) {
+func RegisterTypes(myTypes []interface{}) {
 	for _, v := range myTypes {
 		structType := reflect.TypeOf(v)
 		typeRegistry[structType.Name()] = structType
@@ -44,7 +44,7 @@ func updateCorrelatedRemindToCalculate(db *gorm.DB, toCalculate *RemindToCalcula
 }
 
 //avvia il ricalcolo delle scadenze a partire dalla tabella remind_to_calculate per le righe in cui la data di lavorazione è null
-func ricalcolaScadenze() error {
+func RicalcolaScadenze() error {
 	db := config.Current().DB
 	if err := db.Transaction(func(db *gorm.DB) error {
 		//si ricava l'orario attuale (servirà poi per l'update su remind_to_calculate)
@@ -106,20 +106,14 @@ func updateReminders(db *gorm.DB, el *RemindToCalculate, typeRegistry map[string
 		return err
 	}
 	//si ricavano le scadenze da cancellare e quelle da inserire
-	toInsertList, toDeleteList, err := obj.Reminders(db, el.Action)
+	reminders, err := obj.Reminders(db)
 	if err != nil {
 		return err
 	}
 	//si apre transazione: se una sola insert o una sola delete ha sollevato errore, si fa rollback
 	db.Transaction(func(tx2 *gorm.DB) error {
-		//si cancellano ed inseriscono le scadenze ottenute
-		if toDeleteList != nil && len(toDeleteList) > 0 {
-			if err := tx2.Delete(toDeleteList).Error; err != nil {
-				return err
-			}
-		}
-		if toInsertList != nil && len(toInsertList) > 0 {
-			if err := tx2.Create(toInsertList).Error; err != nil {
+		for _, reminder := range reminders {
+			if err := reminder.ModifyReminds(tx2, el.Action); err != nil {
 				return err
 			}
 		}
@@ -129,7 +123,7 @@ func updateReminders(db *gorm.DB, el *RemindToCalculate, typeRegistry map[string
 }
 
 //restituisce ObjectRaw (json) sotto forma di struct sfruttando typeRegistry per ricavare il tipo di struct da ObjectType
-func getObjectFromRemindToCalculate(el *RemindToCalculate, typeRegistry map[string]reflect.Type) (remindable, error) {
+func getObjectFromRemindToCalculate(el *RemindToCalculate, typeRegistry map[string]reflect.Type) (Event, error) {
 	// si ricava il tipo di struct da ObjectType
 	if t, ok := typeRegistry[el.ObjectType]; ok {
 		//si converte ObjectRaw (json) in struct e si mette dentro Object di el
@@ -140,7 +134,7 @@ func getObjectFromRemindToCalculate(el *RemindToCalculate, typeRegistry map[stri
 		return nil, errors.New("Missing ObjectType " + el.ObjectType + " in typeRegistry")
 	}
 	//si esegue il cast per vedere che implementi correttamente Remindable
-	obj, ok := el.Object.(remindable)
+	obj, ok := el.Object.(Event)
 	if !ok {
 		return nil, errors.New("Error in cast el.Object in models.Remindable")
 	}
@@ -232,7 +226,7 @@ func sendMail(mailto string, body string, subj string) error {
 }
 
 // Writes new reminder row to db.
-func addRecordRemindToCalculate(db *gorm.DB, action string) error {
+func AddRecordRemindToCalculate(db *gorm.DB, action Action) error {
 	r, err := NewRemindToCalculate(db, action)
 	if err != nil {
 		return nil

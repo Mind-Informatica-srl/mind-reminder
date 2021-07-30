@@ -7,12 +7,12 @@ import (
 )
 
 //struct delle scadenze
-type Reminder struct {
+type Remind struct {
 	ID int
 	//Descrizione della scadenza
 	Description *string
 	//Tipo della scadenza
-	ReminderType string
+	RemindType string
 	//json dell'oggetto
 	ObjectRaw models.JSONB
 	// id dell'oggetto
@@ -33,19 +33,19 @@ type Reminder struct {
 	Visibility *string
 }
 
-func (t *Reminder) TableName() string {
-	return "reminder"
+func (t *Remind) TableName() string {
+	return "remind"
 }
 
 // SetPK set the pk for the model
-func (t *Reminder) SetPK(pk interface{}) error {
+func (t *Remind) SetPK(pk interface{}) error {
 	id := pk.(int)
 	t.ID = id
 	return nil
 }
 
 // VerifyPK check the pk value
-func (t *Reminder) VerifyPK(pk interface{}) (bool, error) {
+func (t *Remind) VerifyPK(pk interface{}) (bool, error) {
 	id := pk.(int)
 	return t.ID == id, nil
 }
