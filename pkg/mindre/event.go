@@ -14,18 +14,18 @@ type EventBase logic.EventBase
 type A struct{}
 
 func (e *EventBase) AfterCreate(db *gorm.DB) error {
-	le := logic.EventBase(*e)
-	return le.AfterCreate(db)
+	var le logic.EventBase = logic.EventBase(*e)
+	return (&le).AfterCreate(db)
 }
 
 func (e *EventBase) AfterUpdate(db *gorm.DB) error {
 	le := logic.EventBase(*e)
-	return le.AfterUpdate(db)
+	return (&le).AfterUpdate(db)
 }
 
 func (e *EventBase) AfterDelete(db *gorm.DB) error {
 	le := logic.EventBase(*e)
-	return le.AfterDelete(db)
+	return (&le).AfterDelete(db)
 }
 
 const (
