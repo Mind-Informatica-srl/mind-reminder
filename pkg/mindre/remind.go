@@ -25,27 +25,41 @@ type Remind struct {
 	AccomplishedAt *time.Time
 	//Data Creazione
 	CreatedAt time.Time `gorm:"default:now()"`
-	//Percentuale di assolvenza
-	Percentage float64
 	//Descrizione dello stato della scadenza
 	StatusDescription *string
 	//criteri di visibilià
 	Visibility *string
+	//assolvenze
+	Accomplishers []Accomplisher // TODO: da mettere l'annotazione di gorm
 }
 
-func (t *Remind) TableName() string {
+// Accomplished restituisce lo stato di assolvenza della scadenza e la percentuale di assolvimento
+// TODO: da far restituire i campi accomplished, percentage, e volendo accomplisher o accomplisher.AccomplishAt
+func (r Remind) Accomplished() (accomplished bool, percentage float64, accomplisher Accomplisher) {
+	for _, a := range r.Accomplishers {
+		percentage += a.Percentage
+		if percentage >= 1 && accomplisher.IsZero() {
+			accomplisher = a
+			accomplished = true
+		}
+	}
+	return
+}
+
+// TODO: correggere l'sql di creazione della tabella
+func (r *Remind) TableName() string {
 	return "remind"
 }
 
 // SetPK set the pk for the model
-func (t *Remind) SetPK(pk interface{}) error {
+func (r *Remind) SetPK(pk interface{}) error {
 	id := pk.(int)
-	t.ID = id
+	r.ID = id
 	return nil
 }
 
 // VerifyPK check the pk value
-func (t *Remind) VerifyPK(pk interface{}) (bool, error) {
+func (r *Remind) VerifyPK(pk interface{}) (bool, error) {
 	id := pk.(int)
-	return t.ID == id, nil
+	return r.ID == id, nil
 }
