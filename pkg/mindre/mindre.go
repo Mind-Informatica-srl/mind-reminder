@@ -6,6 +6,7 @@ import (
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/logic"
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/utils"
+	mrmodel "github.com/Mind-Informatica-srl/mind-reminder/pkg/mrnodel"
 	"gorm.io/gorm"
 )
 
@@ -20,12 +21,12 @@ func StartService(structList []interface{}, appName string, db *gorm.DB) error {
 	return nil
 }
 
-func NewBaseRemind(l interface{}, description string, remindType string) (Remind, error) {
+func NewBaseRemind(l interface{}, description string, remindType string) (mrmodel.Remind, error) {
 	raw, err := utils.StructToMap(&l)
 	if err != nil {
-		return Remind{}, err
+		return mrmodel.Remind{}, err
 	}
-	return Remind{
+	return mrmodel.Remind{
 		Description: &description,
 		RemindType:  remindType,
 		ObjectRaw:   raw,

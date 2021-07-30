@@ -1,4 +1,4 @@
-package mindre
+package mrmodel
 
 import "time"
 
