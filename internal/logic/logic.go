@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
+	mrmodel "github.com/Mind-Informatica-srl/mind-reminder/pkg/mrnodel"
 	"gorm.io/gorm"
 )
 
@@ -35,9 +36,10 @@ var typeRegistry = make(map[string]reflect.Type)
 
 // typeRegistry["MyStruct"] = reflect.TypeOf(MyStruct{})
 func RegisterTypes(myTypes []interface{}) {
+	eventInt := reflect.TypeOf((*mrmodel.Event)(nil)).Elem()
 	for _, v := range myTypes {
 		structType := reflect.TypeOf(v)
-		if !structType.Implements(reflect.TypeOf((*Event)(nil)).Elem()) {
+		if !structType.Implements(eventInt) {
 			panic(fmt.Errorf("il tipo %s non implementa l'interfaccia Event", structType.Name()))
 		}
 		typeRegistry[structType.Name()] = structType
@@ -132,7 +134,7 @@ func updateReminders(db *gorm.DB, el *RemindToCalculate, typeRegistry map[string
 }
 
 //restituisce ObjectRaw (json) sotto forma di struct sfruttando typeRegistry per ricavare il tipo di struct da ObjectType
-func getObjectFromRemindToCalculate(el *RemindToCalculate, typeRegistry map[string]reflect.Type) (Event, error) {
+func getObjectFromRemindToCalculate(el *RemindToCalculate, typeRegistry map[string]reflect.Type) (mrmodel.Event, error) {
 	// si ricava il tipo di struct da ObjectType
 	if t, ok := typeRegistry[el.ObjectType]; ok {
 		//si converte ObjectRaw (json) in struct e si mette dentro Object di el

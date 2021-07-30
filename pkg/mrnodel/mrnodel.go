@@ -1,4 +1,4 @@
-package logic
+package mrmodel
 
 import "gorm.io/gorm"
 
@@ -25,21 +25,4 @@ type Event interface {
 	AfterUpdate(*gorm.DB) error
 	//AfterDelete viene chiamato da gorm dopo delete
 	AfterDelete(*gorm.DB) error
-}
-
-// EventBase implementa i metodi di trigger aggiungendo un record alla
-// tabella degli eventi da calcolare
-type EventBase struct {
-}
-
-func (l *EventBase) AfterCreate(db *gorm.DB) error {
-	return AddRecordRemindToCalculate(db, ActionCreate)
-}
-
-func (l *EventBase) AfterUpdate(db *gorm.DB) error {
-	return AddRecordRemindToCalculate(db, ActionUpdate)
-}
-
-func (l *EventBase) AfterDelete(db *gorm.DB) error {
-	return AddRecordRemindToCalculate(db, ActionDelete)
 }
