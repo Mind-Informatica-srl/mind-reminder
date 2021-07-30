@@ -67,5 +67,6 @@ func (r *RemindToCalculate) Event(objType reflect.Type) (event mrmodel.Event, er
 	if err = json.Unmarshal(data, &obj); err != nil {
 		return nil, err
 	}
-	return obj.(mrmodel.Event), nil
+	event = obj.(mrmodel.Event)
+	return
 }

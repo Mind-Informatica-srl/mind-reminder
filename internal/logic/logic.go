@@ -36,12 +36,8 @@ var typeRegistry = make(map[string]reflect.Type)
 
 // typeRegistry["MyStruct"] = reflect.TypeOf(MyStruct{})
 func RegisterTypes(myTypes []interface{}) {
-	eventInt := reflect.TypeOf((*mrmodel.Event)(nil)).Elem()
 	for _, v := range myTypes {
 		structType := reflect.TypeOf(v)
-		if !structType.Implements(eventInt) {
-			panic(fmt.Errorf("il tipo %s non implementa l'interfaccia Event", structType.Name()))
-		}
 		typeRegistry[structType.Name()] = structType
 	}
 }
