@@ -9,7 +9,7 @@ type Event logic.Event
 type EventBase logic.EventBase
 
 const (
-	ActionCreate logic.Action = logic.ActionCreate
-	ActionUpdate              = logic.ActionUpdate
-	ActionDelete              = logic.ActionDelete
+	ActionCreate = logic.ActionCreate
+	ActionUpdate = logic.ActionUpdate
+	ActionDelete = logic.ActionDelete
 )
