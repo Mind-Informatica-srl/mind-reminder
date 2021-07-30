@@ -2,7 +2,6 @@ package logic
 
 import (
 	"encoding/json"
-	"errors"
 	"reflect"
 	"time"
 
@@ -57,7 +56,7 @@ func NewRemindToCalculate(db *gorm.DB, action string) (RemindToCalculate, error)
 }
 
 //converte il json object_raw in struct e lo mette dentro Object
-func (r *RemindToCalculate) Event(objType reflect.Type) (event *Event, err error) {
+func (r *RemindToCalculate) Event(objType reflect.Type) (event Event, err error) {
 	obj := reflect.New(objType).Interface()
 	data, err := json.Marshal(r.ObjectRaw) // Convert to a json string
 
@@ -67,10 +66,5 @@ func (r *RemindToCalculate) Event(objType reflect.Type) (event *Event, err error
 	if err = json.Unmarshal(data, &obj); err != nil {
 		return nil, err
 	}
-	if e, ok := obj.(Event); !ok {
-		return nil, errors.New("Error in cast el.Object in logic.Event")
-	} else {
-		event = &e
-		return
-	}
+	return obj.(Event), nil
 }

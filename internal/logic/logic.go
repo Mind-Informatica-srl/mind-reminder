@@ -37,6 +37,9 @@ var typeRegistry = make(map[string]reflect.Type)
 func RegisterTypes(myTypes []interface{}) {
 	for _, v := range myTypes {
 		structType := reflect.TypeOf(v)
+		if !structType.Implements(reflect.TypeOf((*Event)(nil)).Elem()) {
+			panic(fmt.Errorf("il tipo %s non implementa l'interfaccia Event", structType.Name()))
+		}
 		typeRegistry[structType.Name()] = structType
 	}
 }
@@ -136,7 +139,7 @@ func getObjectFromRemindToCalculate(el *RemindToCalculate, typeRegistry map[stri
 		if event, err := el.Event(t); err != nil {
 			return nil, err
 		} else {
-			return *event, nil
+			return event, nil
 		}
 	} else {
 		return nil, errors.New("Missing ObjectType " + el.ObjectType + " in typeRegistry")
