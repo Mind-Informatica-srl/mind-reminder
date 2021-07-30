@@ -33,14 +33,17 @@ type Remind struct {
 	Accomplishers []Accomplisher // TODO: da mettere l'annotazione di gorm
 }
 
-// Accomplished restituisce lo stato di assolvenza della scadenza e la percentuale di assolvimento
+// Accomplished restituisce lo stato di assolvenza della scadenza, la percentuale di assolvimento,
+// l'assolvenza determinante e quelle in eccedenza
 // TODO: da far restituire i campi accomplished, percentage, e volendo accomplisher o accomplisher.AccomplishAt
-func (r Remind) Accomplished() (accomplished bool, percentage float64, accomplisher Accomplisher) {
+func (r Remind) Accomplished() (accomplished bool, percentage float64, accomplisher Accomplisher, surplus []Accomplisher) {
 	for _, a := range r.Accomplishers {
 		percentage += a.Percentage
 		if percentage >= 1 && accomplisher.IsZero() {
 			accomplisher = a
 			accomplished = true
+		} else if percentage > 1 {
+			surplus = append(surplus, a)
 		}
 	}
 	return
