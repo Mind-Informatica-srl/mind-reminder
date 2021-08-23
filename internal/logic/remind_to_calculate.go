@@ -25,7 +25,6 @@ type RemindToCalculate struct {
 	// it may be not unique when use multiple types from different packages but with the same name.
 	ObjectType string //`gorm:"index"`
 	// Raw representation of tracking object.
-	// todo(@sas1024): Replace with []byte, to reduce allocations. Would be major version.
 	ObjectRaw models.JSONB `gorm:"type:json"`
 	// Timestamp, when reminder was created.
 	CreatedAt time.Time `gorm:"default:now()"`

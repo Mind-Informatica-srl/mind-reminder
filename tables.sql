@@ -33,8 +33,24 @@ CREATE TABLE IF NOT EXISTS public.remind
 (id)
 );
 -- +goose StatementEnd
+-- +goose StatementBegin
+CREATE TABLE IF NOT EXISTS public.accomplishers
+(
+    id serial not null,
+    remind_id integer not null,
+    object_id text not null,
+    accomplish_at timestamp without time zone,
+    percetange FLOAT,
+    constraint accomplischers_pkey primary key (id),
+    constraint accomplischers_reminders_fkey foreign key (remind_id) references remind(id)
+);
+-- +goose StatementEnd
+
 
 -- +goose Down
+-- +goose StatementBegin
+DROP TABLE if exists public.accomplishers;
+-- +goose StatementEnd
 -- +goose StatementBegin
 DROP TABLE if exists public.remind_to_calculate;
 -- +goose StatementEnd

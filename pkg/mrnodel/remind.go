@@ -28,8 +28,6 @@ type Remind struct {
 	ObjectType string
 	//Data Scadenza
 	ExpireAt time.Time
-	//Data Assolvenza
-	AccomplishedAt *time.Time
 	//Data Creazione
 	CreatedAt time.Time `gorm:"default:now()"`
 	//Descrizione dello stato della scadenza
@@ -37,12 +35,11 @@ type Remind struct {
 	//criteri di visibilià
 	Visibility *string
 	//assolvenze
-	Accomplishers []Accomplisher // TODO: da mettere l'annotazione di gorm
+	Accomplishers []Accomplisher `gorm:"foreignKey:remind_id;references:id"`
 }
 
 // Accomplished restituisce lo stato di assolvenza della scadenza, la percentuale di assolvimento,
 // l'assolvenza determinante e quelle in eccedenza
-// TODO: da far restituire i campi accomplished, percentage, e volendo accomplisher o accomplisher.AccomplishAt
 func (r Remind) Accomplished() (accomplished bool, percentage float64, accomplisher Accomplisher, surplus []Accomplisher) {
 	sort.Sort(accomplishers(r.Accomplishers))
 	for _, a := range r.Accomplishers {
@@ -57,7 +54,6 @@ func (r Remind) Accomplished() (accomplished bool, percentage float64, accomplis
 	return
 }
 
-// TODO: correggere l'sql di creazione della tabella
 func (r *Remind) TableName() string {
 	return "remind"
 }

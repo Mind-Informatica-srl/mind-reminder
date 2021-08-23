@@ -12,7 +12,6 @@ type Accomplisher struct {
 	Percentage float64
 }
 
-// TODO: scrivere l'sql per la creazione della tabella
 func (t *Accomplisher) TableName() string {
 	return "accomplishers"
 }
