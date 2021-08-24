@@ -33,3 +33,15 @@ func NewBaseRemind(l interface{}, description string, remindType string) (mrmode
 		ObjectType:  reflect.TypeOf(l).Elem().Name(),
 	}, nil
 }
+
+func RemindToCalculateFromCreate(db *gorm.DB) error {
+	return logic.AddRecordRemindToCalculate(db, mrmodel.ActionCreate)
+}
+
+func RemindToCalculateFromUpdate(db *gorm.DB) error {
+	return logic.AddRecordRemindToCalculate(db, mrmodel.ActionUpdate)
+}
+
+func RemindToCalculateFromDelete(db *gorm.DB) error {
+	return logic.AddRecordRemindToCalculate(db, mrmodel.ActionDelete)
+}
