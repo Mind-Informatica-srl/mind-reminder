@@ -16,7 +16,7 @@ type RemindToCalculate struct {
 	// Primary key of reminders.
 	ID int //uuid.UUID `gorm:"primary_key;"`
 	// azione che ha scatenato l'insert del rigo
-	Action string
+	Action mrmodel.Action
 	// ID of tracking object.
 	// By this ID later you can find all object (database row) changes.
 	ObjectID string //`gorm:"index"`
@@ -42,7 +42,7 @@ func (t *RemindToCalculate) TableName() string {
 }
 
 //restituisce uno slice di scadenze
-func NewRemindToCalculate(db *gorm.DB, action string) (RemindToCalculate, error) {
+func NewRemindToCalculate(db *gorm.DB, action mrmodel.Action) (RemindToCalculate, error) {
 	rawObjectString, err := utils.StructToMap(db.Statement.Model)
 	if err != nil {
 		return RemindToCalculate{}, err

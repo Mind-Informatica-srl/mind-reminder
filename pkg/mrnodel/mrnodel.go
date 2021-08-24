@@ -2,17 +2,19 @@ package mrmodel
 
 import "gorm.io/gorm"
 
+type Action string
+
 const (
-	ActionCreate = "create"
-	ActionUpdate = "update"
-	ActionDelete = "delete"
+	ActionCreate Action = "create"
+	ActionUpdate        = "update"
+	ActionDelete        = "delete"
 )
 
 // Reminder rappresenta la modifica delle scadenze da applicare
 type Reminder interface {
 	// ModifyReminds è la funzione invocata per ricalcolare le scandenze
 	// in consegnuenza all'evento
-	ModifyReminds(db *gorm.DB, action string) error
+	ModifyReminds(db *gorm.DB, action Action) ([]Reminder, error)
 }
 
 // Event è l'evento che scatena la necessità di ricalcolare le scadenze
