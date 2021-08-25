@@ -21,10 +21,4 @@ type Reminder interface {
 type Event interface {
 	// Reminders restituisce la lista di reminder da applicare
 	Reminders(*gorm.DB) ([]Reminder, error)
-	// AfterCreate viene chiamato da gorm dopo insert
-	AfterCreate(*gorm.DB) error
-	// AfterUpdate viene chiamato da gorm dopo update
-	AfterUpdate(*gorm.DB) error
-	//AfterDelete viene chiamato da gorm dopo delete
-	AfterDelete(*gorm.DB) error
 }
