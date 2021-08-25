@@ -14,7 +14,7 @@ const (
 type Reminder interface {
 	// ModifyReminds è la funzione invocata per ricalcolare le scandenze
 	// in consegnuenza all'evento
-	ModifyReminds(db *gorm.DB, action Action) ([]Reminder, error)
+	ModifyReminds(db *gorm.DB, action Action) (err error)
 }
 
 // Event è l'evento che scatena la necessità di ricalcolare le scadenze

@@ -120,27 +120,13 @@ func updateReminders(db *gorm.DB, el *RemindToCalculate, typeRegistry map[string
 	//si apre transazione: se una sola insert o una sola delete ha sollevato errore, si fa rollback
 	db.Transaction(func(tx2 *gorm.DB) error {
 		for _, reminder := range reminders {
-			if err := applyRemind(tx2, reminder, el.Action); err != nil {
+			if err := reminder.ModifyReminds(tx2, el.Action); err != nil {
 				return err
 			}
 		}
 		return nil
 	})
 	return nil
-}
-
-func applyRemind(db *gorm.DB, reminder mrmodel.Reminder, action mrmodel.Action) (err error) {
-	var rs []mrmodel.Reminder
-	if rs, err = reminder.ModifyReminds(db, action); err != nil {
-		return
-	} else {
-		for _, r := range rs {
-			if err = applyRemind(db, r, mrmodel.ActionUpdate); err != nil {
-				return
-			}
-		}
-	}
-	return
 }
 
 //restituisce ObjectRaw (json) sotto forma di struct sfruttando typeRegistry per ricavare il tipo di struct da ObjectType
