@@ -21,4 +21,5 @@ type Reminder interface {
 type Event interface {
 	// Reminders restituisce la lista di reminder da applicare
 	Reminders(*gorm.DB) ([]Reminder, error)
+	PrepareAddRecord(db *gorm.DB) (err error)
 }
