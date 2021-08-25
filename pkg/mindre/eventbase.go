@@ -35,3 +35,7 @@ func (l *EventBase) AfterDelete(db *gorm.DB) error {
 	}
 	return logic.AddRecordRemindToCalculate(db, mrmodel.ActionDelete)
 }
+
+func (l *EventBase) Reminders(*gorm.DB) (reminders []mrmodel.Reminder, err error) {
+	return
+}
