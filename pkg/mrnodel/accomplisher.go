@@ -6,7 +6,7 @@ import "time"
 type Accomplisher struct {
 	ID           int // anche qui mi fa abbastanza schifo, ma ora mi fa fatica pensarci!
 	RemindID     int
-	ObjectID     int
+	ObjectID     string
 	AccomplishAt time.Time
 	//Percentuale di assolvenza
 	Percentage float64
