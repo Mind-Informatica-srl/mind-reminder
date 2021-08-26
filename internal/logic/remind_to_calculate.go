@@ -8,7 +8,6 @@ import (
 	"github.com/Mind-Informatica-srl/mind-reminder/internal/utils"
 	mrmodel "github.com/Mind-Informatica-srl/mind-reminder/pkg/mrnodel"
 	"github.com/Mind-Informatica-srl/restapi/pkg/models"
-	"gorm.io/gorm"
 )
 
 // struct delle modifiche da cui si dovranno calcolare le scadenze (Reminder)
@@ -42,17 +41,16 @@ func (t *RemindToCalculate) TableName() string {
 }
 
 //restituisce uno slice di scadenze
-func NewRemindToCalculate(db *gorm.DB, action mrmodel.Action) (RemindToCalculate, error) {
-	rawObjectString, err := utils.StructToMap(db.Statement.Model)
-	if err != nil {
-		return RemindToCalculate{}, err
+func NewRemindToCalculate(element interface{}, objectID string, action mrmodel.Action) (r RemindToCalculate, err error) {
+	if rawObjectString, err := utils.StructToMap(element); err == nil {
+		r = RemindToCalculate{
+			Action:     action,
+			ObjectID:   objectID,
+			ObjectType: reflect.TypeOf(element).Elem().Name(),
+			ObjectRaw:  rawObjectString,
+		}
 	}
-	return RemindToCalculate{
-		Action:     action,
-		ObjectID:   utils.GetPrimaryKeyValue(db),
-		ObjectType: db.Statement.Schema.ModelType.Name(),
-		ObjectRaw:  rawObjectString,
-	}, nil
+	return
 }
 
 //converte il json object_raw in struct e lo mette dentro Object

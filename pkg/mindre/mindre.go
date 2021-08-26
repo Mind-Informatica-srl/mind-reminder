@@ -34,14 +34,14 @@ func NewBaseRemind(l interface{}, description string, remindType string) (mrmode
 	}, nil
 }
 
-func RemindToCalculateFromCreate(db *gorm.DB) error {
-	return logic.AddRecordRemindToCalculate(db, mrmodel.ActionCreate)
+func RemindToCalculateFromCreate(element interface{}, objectID string, db *gorm.DB) error {
+	return logic.AddRecordRemindToCalculate(element, objectID, mrmodel.ActionCreate, db)
 }
 
-func RemindToCalculateFromUpdate(db *gorm.DB) error {
-	return logic.AddRecordRemindToCalculate(db, mrmodel.ActionUpdate)
+func RemindToCalculateFromUpdate(element interface{}, objectID string, db *gorm.DB) error {
+	return logic.AddRecordRemindToCalculate(element, objectID, mrmodel.ActionUpdate, db)
 }
 
-func RemindToCalculateFromDelete(db *gorm.DB) error {
-	return logic.AddRecordRemindToCalculate(db, mrmodel.ActionDelete)
+func RemindToCalculateFromDelete(element interface{}, objectID string, db *gorm.DB) error {
+	return logic.AddRecordRemindToCalculate(element, objectID, mrmodel.ActionDelete, db)
 }

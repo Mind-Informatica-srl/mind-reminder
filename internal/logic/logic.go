@@ -229,8 +229,8 @@ func sendMail(mailto string, body string, subj string) error {
 }
 
 // Writes new reminder row to db.
-func AddRecordRemindToCalculate(db *gorm.DB, action mrmodel.Action) error {
-	r, err := NewRemindToCalculate(db, action)
+func AddRecordRemindToCalculate(element interface{}, objectID string, action mrmodel.Action, db *gorm.DB) error {
+	r, err := NewRemindToCalculate(element, objectID, action)
 	if err != nil {
 		return nil
 	}
