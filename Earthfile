@@ -9,8 +9,6 @@ buildEnvironment:
     RUN apk add curl git
     RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.39.0
 
-    RUN git config --global url."https://simonerocchi:yq3RGzmhzSKbyM5hAhRF@bitbucket.org/".insteadOf "https://bitbucket.org/"
-
     # Set necessary environmet variables needed for our image
     ENV GO111MODULE=on 
     ENV CGO_ENABLED=0 
@@ -19,11 +17,11 @@ buildEnvironment:
     ENV GOPRIVATE=bitbucket.org/leonardoce
 
     # Download dependencies
-    COPY ./lamicolor-web-server/go.mod ./lamicolor-web-server/go.sum .
+    COPY ./go.mod ./go.sum .
     RUN go mod download
 
     # Copy source code
-    COPY ./lamicolor-web-server/cmd cmd
+    COPY ./lamicolor-web-server/package cmd
     COPY ./lamicolor-web-server/internal internal
 
 lint:
