@@ -21,8 +21,8 @@ buildEnvironment:
     RUN go mod download
 
     # Copy source code
-    COPY ./lamicolor-web-server/package cmd
-    COPY ./lamicolor-web-server/internal internal
+    COPY ./package cmd
+    COPY ./internal internal
 
 lint:
     FROM +buildEnvironment
