@@ -1,3 +1,4 @@
+// Package mindre expose the functions to configure and start the remind service
 package mindre
 
 import (
@@ -10,6 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// StartService start the remind service
 func StartService(structList []interface{}, appName string, db *gorm.DB) error {
 	if _, err := config.Create(db); err != nil {
 		return err
@@ -21,6 +23,7 @@ func StartService(structList []interface{}, appName string, db *gorm.DB) error {
 	return nil
 }
 
+// NewBaseRemind create a new remind with the brovided data
 func NewBaseRemind(l interface{}, description string, remindType string) (mrmodel.Remind, error) {
 	raw, err := utils.StructToMap(&l)
 	if err != nil {
@@ -34,14 +37,17 @@ func NewBaseRemind(l interface{}, description string, remindType string) (mrmode
 	}, nil
 }
 
+// RemindToCalculateFromCreate add a new remind to calculate from a creating action
 func RemindToCalculateFromCreate(element interface{}, objectID string, db *gorm.DB) error {
 	return logic.AddRecordRemindToCalculate(element, objectID, mrmodel.ActionCreate, db)
 }
 
+// RemindToCalculateFromUpdate add a new remind to calculate from a updating action
 func RemindToCalculateFromUpdate(element interface{}, objectID string, db *gorm.DB) error {
 	return logic.AddRecordRemindToCalculate(element, objectID, mrmodel.ActionUpdate, db)
 }
 
+// RemindToCalculateFromDelete add a new remind to calculate from a deleting action
 func RemindToCalculateFromDelete(element interface{}, objectID string, db *gorm.DB) error {
 	return logic.AddRecordRemindToCalculate(element, objectID, mrmodel.ActionDelete, db)
 }

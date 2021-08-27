@@ -1,4 +1,4 @@
-// Package configuration contain the current configuration
+// Package config contain the current configuration
 // in use by the project
 package config
 

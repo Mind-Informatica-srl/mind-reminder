@@ -13,34 +13,39 @@ func (a accomplishers) Len() int           { return len(a) }
 func (a accomplishers) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a accomplishers) Less(i, j int) bool { return a[i].AccomplishAt.Before(a[j].AccomplishAt) }
 
-//struct delle scadenze
+// Remind è la struct delle scadenze
 type Remind struct {
 	ID int
-	//Descrizione della scadenza
+	// Descrizione della scadenza
 	Description *string
-	//Tipo della scadenza
+	// Tipo della scadenza
 	RemindType string
-	//json dell'oggetto
+	// json dell'oggetto
 	ObjectRaw models.JSONB
 	// id dell'oggetto
 	ObjectID string
-	//tipo della model dell'oggetto
+	// tipo della model dell'oggetto
 	ObjectType string
-	//Data Scadenza
+	// Data Scadenza
 	ExpireAt time.Time
-	//Data Creazione
+	// Data Creazione
 	CreatedAt time.Time `gorm:"default:now()"`
-	//Descrizione dello stato della scadenza
+	// Descrizione dello stato della scadenza
 	StatusDescription *string
-	//criteri di visibilià
+	// criteri di visibilià
 	Visibility *string
-	//assolvenze
+	// assolvenze
 	Accomplishers []Accomplisher `gorm:"foreignKey:remind_id;references:id"`
 }
 
 // Accomplished restituisce lo stato di assolvenza della scadenza, la percentuale di assolvimento,
 // l'assolvenza determinante e quelle in eccedenza
-func (r Remind) Accomplished() (accomplished bool, percentage float64, accomplisher Accomplisher, surplus []Accomplisher) {
+func (r Remind) Accomplished() (
+	accomplished bool,
+	percentage float64,
+	accomplisher Accomplisher,
+	surplus []Accomplisher,
+) {
 	sort.Sort(accomplishers(r.Accomplishers))
 	for _, a := range r.Accomplishers {
 		percentage += a.Percentage
@@ -54,6 +59,7 @@ func (r Remind) Accomplished() (accomplished bool, percentage float64, accomplis
 	return
 }
 
+// TableName return the remind table name
 func (r *Remind) TableName() string {
 	return "remind"
 }

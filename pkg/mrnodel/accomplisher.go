@@ -8,27 +8,29 @@ type Accomplisher struct {
 	RemindID     int
 	ObjectID     string
 	AccomplishAt time.Time
-	//Percentuale di assolvenza
+	// Percentuale di assolvenza
 	Percentage float64
 }
 
-func (t *Accomplisher) TableName() string {
+// TableName return the accomplishers table name
+func (a *Accomplisher) TableName() string {
 	return "accomplishers"
 }
 
 // SetPK set the pk for the model
-func (t *Accomplisher) SetPK(pk interface{}) error {
+func (a *Accomplisher) SetPK(pk interface{}) error {
 	id := pk.(int)
-	t.ID = id
+	a.ID = id
 	return nil
 }
 
 // VerifyPK check the pk value
-func (t *Accomplisher) VerifyPK(pk interface{}) (bool, error) {
+func (a *Accomplisher) VerifyPK(pk interface{}) (bool, error) {
 	id := pk.(int)
-	return t.ID == id, nil
+	return a.ID == id, nil
 }
 
+// IsZero return true if the percentage is zero
 func (a Accomplisher) IsZero() bool {
 	return a.Percentage == 0
 }

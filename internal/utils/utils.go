@@ -1,3 +1,4 @@
+// Package utils expose some useful function
 package utils
 
 import (
@@ -9,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-//restituisce la struct con solo i campi della primary key valorizzati
+// GetPrimaryKeyValue restituisce la struct con solo i campi della primary key valorizzati
 func GetPrimaryKeyValue(db *gorm.DB) string {
 	var sb strings.Builder
 	if keys := db.Statement.Schema.PrimaryFields; keys != nil {
@@ -31,10 +32,8 @@ func GetPrimaryKeyValue(db *gorm.DB) string {
 			switch keyValue.Kind() {
 			case reflect.Int:
 				valueString = strconv.Itoa(int(keyValue.Int()))
-				break
 			default:
 				valueString = keyValue.String()
-				break
 			}
 			sb.WriteString("\"")
 			sb.WriteString(valueString)
@@ -46,7 +45,8 @@ func GetPrimaryKeyValue(db *gorm.DB) string {
 	return sb.String()
 }
 
-func InterfaceToJsonString(l interface{}) (string, error) {
+// InterfaceToJSONString transform an interface in the corresponding json string
+func InterfaceToJSONString(l interface{}) (string, error) {
 	rawObject, err := json.Marshal(l)
 	if err != nil {
 		return "", err
@@ -54,7 +54,7 @@ func InterfaceToJsonString(l interface{}) (string, error) {
 	return string(rawObject), nil
 }
 
-// Converts a struct to a map while maintaining the json alias as keys
+// StructToMap Converts a struct to a map while maintaining the json alias as keys
 func StructToMap(obj interface{}) (newMap map[string]interface{}, err error) {
 	data, err := json.Marshal(obj) // Convert to a json string
 
