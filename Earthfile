@@ -21,7 +21,7 @@ buildEnvironment:
     RUN go mod download
 
     # Copy source code
-    COPY ./package cmd
+    COPY ./pkg pkg
     COPY ./internal internal
 
 lint:
