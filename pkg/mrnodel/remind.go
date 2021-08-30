@@ -1,6 +1,7 @@
 package mrmodel
 
 import (
+	"encoding/json"
 	"sort"
 	"time"
 
@@ -75,4 +76,21 @@ func (r *Remind) SetPK(pk interface{}) error {
 func (r *Remind) VerifyPK(pk interface{}) (bool, error) {
 	id := pk.(int)
 	return r.ID == id, nil
+}
+
+func (r *Remind) MarshalJSON() ([]byte, error) {
+	accomplished, percentage, accomplisher, surplus := r.Accomplished()
+	return json.Marshal(struct {
+		Remind
+		Accomplished bool
+		Percentage   float64
+		Accomplisher Accomplisher
+		Surplus      []Accomplisher
+	}{
+		Remind:       Remind(*r),
+		Accomplished: accomplished,
+		Percentage:   percentage,
+		Accomplisher: accomplisher,
+		Surplus:      surplus,
+	})
 }

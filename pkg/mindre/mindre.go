@@ -51,3 +51,12 @@ func RemindToCalculateFromUpdate(element interface{}, objectID string, db *gorm.
 func RemindToCalculateFromDelete(element interface{}, objectID string, db *gorm.DB) error {
 	return logic.AddRecordRemindToCalculate(element, objectID, mrmodel.ActionDelete, db)
 }
+
+// GetReminders returns the list of reminders
+func GetReminders(appName string, db *gorm.DB) (*[]mrmodel.Remind, error) {
+	var list []mrmodel.Remind
+	if err := db.Find(&list).Error; err != nil {
+		return nil, err
+	}
+	return &list, nil
+}
