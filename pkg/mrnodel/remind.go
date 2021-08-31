@@ -44,14 +44,14 @@ type Remind struct {
 func (r Remind) Accomplished() (
 	accomplished bool,
 	percentage float64,
-	accomplisher Accomplisher,
+	accomplisher *Accomplisher,
 	surplus []Accomplisher,
 ) {
 	sort.Sort(accomplishers(r.Accomplishers))
 	for _, a := range r.Accomplishers {
 		percentage += a.Percentage
 		if percentage >= 1 && accomplisher.IsZero() {
-			accomplisher = a
+			accomplisher = &a
 			accomplished = true
 		} else if percentage > 1 {
 			surplus = append(surplus, a)
@@ -84,7 +84,7 @@ func (r *Remind) MarshalJSON() ([]byte, error) {
 		Remind
 		Accomplished bool
 		Percentage   float64
-		Accomplisher Accomplisher
+		Accomplisher *Accomplisher
 		Surplus      []Accomplisher
 	}{
 		Remind:       Remind(*r),
