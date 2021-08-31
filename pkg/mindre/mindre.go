@@ -55,7 +55,7 @@ func RemindToCalculateFromDelete(element interface{}, objectID string, db *gorm.
 // GetReminders returns the list of reminders
 func GetReminders(appName string, db *gorm.DB) (*[]mrmodel.Remind, error) {
 	var list []mrmodel.Remind
-	if err := db.Find(&list).Error; err != nil {
+	if err := db.Preload("Accomplishers").Find(&list).Error; err != nil {
 		return nil, err
 	}
 	return &list, nil
