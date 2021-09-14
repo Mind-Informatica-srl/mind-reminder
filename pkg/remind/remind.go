@@ -45,7 +45,7 @@ func (r Remind) accomplished() (
 	accomplisher *Accomplisher,
 	surplus []Accomplisher,
 ) {
-	sort.Sort(Accomplishers(r.accomplishers))
+	sort.Sort(r.accomplishers)
 	for _, a := range r.accomplishers {
 		score += a.Score
 		if score >= 1 && accomplisher.IsZero() {
@@ -76,6 +76,7 @@ func (r *Remind) VerifyPK(pk interface{}) (bool, error) {
 	return r.ID == id, nil
 }
 
+// MarshalJSON produce il json del remind con le informazioni utili
 func (r *Remind) MarshalJSON() ([]byte, error) {
 	accomplished, score, accomplisher, surplus := r.accomplished()
 	return json.Marshal(struct {
@@ -85,7 +86,7 @@ func (r *Remind) MarshalJSON() ([]byte, error) {
 		Accomplisher *Accomplisher
 		Surplus      []Accomplisher
 	}{
-		Remind:       Remind(*r),
+		Remind:       *r,
 		Accomplished: accomplished,
 		Score:        score,
 		Accomplisher: accomplisher,
@@ -93,6 +94,7 @@ func (r *Remind) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// AfterCreate cerca di assolvere il remind appena inserito
 func (r *Remind) AfterCreate(tx *gorm.DB) (err error) {
 	// recupera gli eventi riguardanti stessa azienda, unità locale, utente e tipo
 	// successivi a remind, che assolvono remind successivi
@@ -103,9 +105,13 @@ func (r *Remind) AfterCreate(tx *gorm.DB) (err error) {
 func (r *Remind) searchForAccomplishers(tx *gorm.DB) (err error) {
 	for {
 		var event Event
-		if err = tx.Joins("(select sum(score) as tot_score, max(accomplish_at) as max_date, event_id from accomplishers group by event_id) as accstatus on accstatus.event_id = event.id").
+		if err = tx.Joins("(select sum(score) as tot_score, max(accomplish_at) as max_date, event_id "+
+			"from accomplishers group by event_id) as accstatus on accstatus.event_id = event.id").
 			Where("accstatus.tot_score < event.accomplish_max_score or max_date > ?", r.Event.EventDate).
-			Where("event_type = ? and hook = ? and event_date > ?", r.RemindType, r.Event.Hook).Order("event.event_date").Preload("Accomplishers.Event").First(&event).Error; err != nil {
+			Where("event_type = ? and hook = ? and event_date > ?", r.RemindType, r.Event.Hook).
+			Order("event.event_date").
+			Preload("Accomplishers.Event").
+			First(&event).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				err = nil
 			}
@@ -137,4 +143,5 @@ var remindDelegate = models.NewBaseDelegate(func() *gorm.DB {
 		return actions.PrimaryKeyIntExtractor(r, "ID")
 	})
 
+// RemindController è il controller dei remind
 var RemindController = controllers.CreateModelController("/remind", remindDelegate)

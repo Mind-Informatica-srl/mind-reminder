@@ -1,4 +1,4 @@
-// Package mrmodel expose the model to use remind package with
+// Package remind expose the model to use remind package with
 package remind
 
 // Action is the type representing what you can do with a record: create, update, delete

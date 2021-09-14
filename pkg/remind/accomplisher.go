@@ -39,14 +39,26 @@ func (a Accomplisher) IsZero() bool {
 	return a.Score == 0
 }
 
+// Accomplishers rappresenta un array di accomplisher
 type Accomplishers []*Accomplisher
 
-func (a Accomplishers) Len() int           { return len(a) }
-func (a Accomplishers) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a Accomplishers) Less(i, j int) bool { return a[i].AccomplishAt.Before(a[j].AccomplishAt) }
+// Len restituisce il numero di elementi
+func (accomplishers Accomplishers) Len() int { return len(accomplishers) }
+
+// Swap scambia di posto due elementi
+func (accomplishers Accomplishers) Swap(i, j int) {
+	accomplishers[i], accomplishers[j] = accomplishers[j], accomplishers[i]
+}
+
+// Less restituisce true se l'iesimo accomplisher è precedente al jesimo
+func (accomplishers Accomplishers) Less(i, j int) bool {
+	return accomplishers[i].AccomplishAt.Before(accomplishers[j].AccomplishAt)
+}
+
+// Score restituisce lo score della lista di accomplishers
 func (accomplishers Accomplishers) Score() (score int) {
 	for _, a := range accomplishers {
-		score += int(a.Score)
+		score += a.Score
 	}
 	return
 }
