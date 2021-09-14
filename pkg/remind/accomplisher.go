@@ -1,15 +1,19 @@
-package mrmodel
+package remind
 
-import "time"
+import (
+	"time"
+)
 
 // Accomplisher è un'assolvenza (anche parziale) ad una scadenza
 type Accomplisher struct {
 	ID           int // anche qui mi fa abbastanza schifo, ma ora mi fa fatica pensarci!
 	RemindID     int
-	ObjectID     string
+	Remind       Remind
+	EventID      int
+	Event        Event
 	AccomplishAt time.Time
 	// Percentuale di assolvenza
-	Percentage float64
+	Score int
 }
 
 // TableName return the accomplishers table name
@@ -32,5 +36,17 @@ func (a *Accomplisher) VerifyPK(pk interface{}) (bool, error) {
 
 // IsZero return true if the percentage is zero
 func (a Accomplisher) IsZero() bool {
-	return a.Percentage == 0
+	return a.Score == 0
+}
+
+type Accomplishers []*Accomplisher
+
+func (a Accomplishers) Len() int           { return len(a) }
+func (a Accomplishers) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a Accomplishers) Less(i, j int) bool { return a[i].AccomplishAt.Before(a[j].AccomplishAt) }
+func (accomplishers Accomplishers) Score() (score int) {
+	for _, a := range accomplishers {
+		score += int(a.Score)
+	}
+	return
 }
