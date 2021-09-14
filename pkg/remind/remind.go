@@ -108,7 +108,7 @@ func (r *Remind) searchForAccomplishers(tx *gorm.DB) (err error) {
 		if err = tx.Joins("(select sum(score) as tot_score, max(accomplish_at) as max_date, event_id "+
 			"from accomplishers group by event_id) as accstatus on accstatus.event_id = event.id").
 			Where("accstatus.tot_score < event.accomplish_max_score or max_date > ?", r.Event.EventDate).
-			Where("event_type = ? and hook = ? and event_date > ?", r.RemindType, r.Event.Hook).
+			Where("event_type = ? and hook = ? and event_date > ? and event_date <= ?", r.RemindType, r.Event.Hook, r.Event.EventDate, r.ExpireAt).
 			Order("event.event_date").
 			Preload("Accomplishers.Event").
 			First(&event).Error; err != nil {
