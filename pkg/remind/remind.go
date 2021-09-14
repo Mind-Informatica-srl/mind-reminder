@@ -145,3 +145,12 @@ var remindDelegate = models.NewBaseDelegate(func() *gorm.DB {
 
 // RemindController è il controller dei remind
 var RemindController = controllers.CreateModelController("/remind", remindDelegate)
+
+// Create create a configuration
+func Create(db *gorm.DB) (*config.Data, error) {
+	config.CurrentConfiguration = &config.Data{
+		DB: db,
+	}
+
+	return config.CurrentConfiguration, nil
+}

@@ -14,8 +14,8 @@ type Data struct {
 	DB *gorm.DB
 }
 
-// currentConfiguration is the default configuration
-var currentConfiguration *Data
+// CurrentConfiguration is the default configuration
+var CurrentConfiguration *Data
 
 // ErrorAlreadySetup is raised when this project is started up
 // more than one times
@@ -26,23 +26,14 @@ var ErrorMissingConfiguration = fmt.Errorf("missing configuration")
 
 // Setup create the current configuration.
 func Setup(config *Data) error {
-	if currentConfiguration != nil {
+	if CurrentConfiguration != nil {
 		return ErrorAlreadySetup
 	}
-	currentConfiguration = config
+	CurrentConfiguration = config
 	return nil
 }
 
 // Current gets the current configurfation
 func Current() *Data {
-	return currentConfiguration
-}
-
-// Create create a configuration
-func Create(db *gorm.DB) (*Data, error) {
-	currentConfiguration = &Data{
-		DB: db,
-	}
-
-	return currentConfiguration, nil
+	return CurrentConfiguration
 }
