@@ -37,9 +37,9 @@ type Remind struct {
 	MaxScore      int
 }
 
-// accomplished restituisce lo stato di assolvenza della scadenza, la percentuale di assolvimento,
+// Accomplished restituisce lo stato di assolvenza della scadenza, la percentuale di assolvimento,
 // l'assolvenza determinante e quelle in eccedenza
-func (r Remind) accomplished() (
+func (r Remind) Accomplished() (
 	accomplished bool,
 	score int,
 	accomplisher *Accomplisher,
@@ -78,7 +78,7 @@ func (r *Remind) VerifyPK(pk interface{}) (bool, error) {
 
 // MarshalJSON produce il json del remind con le informazioni utili
 func (r *Remind) MarshalJSON() ([]byte, error) {
-	accomplished, score, accomplisher, surplus := r.accomplished()
+	accomplished, score, accomplisher, surplus := r.Accomplished()
 	return json.Marshal(struct {
 		Remind
 		Accomplished bool

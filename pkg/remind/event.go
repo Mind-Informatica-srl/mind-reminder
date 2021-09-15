@@ -142,7 +142,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (err error) {
 		}
 		// valuto il remind e tratto il surplus
 		remind.accomplishers = append(remind.accomplishers, &a)
-		_, _, _, surplus := remind.accomplished()
+		_, _, _, surplus := remind.Accomplished()
 		for i := range surplus {
 			// elimino il surplus
 			if err = tx.Delete(&surplus[i]).Error; err != nil {
