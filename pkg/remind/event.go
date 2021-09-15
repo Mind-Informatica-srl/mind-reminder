@@ -100,7 +100,7 @@ func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 		return
 	}
 	// per ogni assolvenza del remind, controllo l'evento relativo
-	for _, a := range remind.accomplishers {
+	for _, a := range remind.Accomplishers {
 		if err = a.Event.tryToAccomplish(tx); err != nil {
 			return
 		}
@@ -140,7 +140,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (err error) {
 			return
 		}
 		// valuto il remind e tratto il surplus
-		remind.accomplishers = append(remind.accomplishers, &a)
+		remind.Accomplishers = append(remind.Accomplishers, &a)
 		_, _, _, surplus := remind.Accomplished()
 		for i := range surplus {
 			// elimino il surplus
@@ -180,7 +180,7 @@ func (e Event) searchForFirstRemind(tx *gorm.DB, remind *Remind) (err error) {
 }
 
 func createAccomplisher(event Event, remind Remind) (a Accomplisher) {
-	score := remind.accomplishers.Score()
+	score := remind.Accomplishers.Score()
 	delta := int(math.Min(float64(event.AccomplishMaxScore-event.accomplishers.Score()), float64(remind.MaxScore-score)))
 	a = Accomplisher{
 		RemindID:     remind.ID,

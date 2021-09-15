@@ -33,7 +33,7 @@ type Remind struct {
 	// criteri di visibilià
 	Visibility *string
 	// assolvenze
-	accomplishers Accomplishers `gorm:"foreignKey:remind_id;references:id"`
+	Accomplishers Accomplishers `gorm:"foreignKey:remind_id;references:id"`
 	MaxScore      int
 }
 
@@ -45,8 +45,8 @@ func (r Remind) Accomplished() (
 	accomplisher *Accomplisher,
 	surplus []Accomplisher,
 ) {
-	sort.Sort(r.accomplishers)
-	for _, a := range r.accomplishers {
+	sort.Sort(r.Accomplishers)
+	for _, a := range r.Accomplishers {
 		score += a.Score
 		if score >= 1 && accomplisher.IsZero() {
 			accomplisher = a
@@ -127,8 +127,8 @@ func (r *Remind) searchForAccomplishers(tx *gorm.DB) (err error) {
 		if err = event.tryToAccomplish(tx); err != nil {
 			return
 		}
-		r.accomplishers = append(r.accomplishers, &a)
-		if r.accomplishers.Score() >= r.MaxScore {
+		r.Accomplishers = append(r.Accomplishers, &a)
+		if r.Accomplishers.Score() >= r.MaxScore {
 			return
 		}
 	}
