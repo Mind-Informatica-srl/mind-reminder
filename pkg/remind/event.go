@@ -23,7 +23,7 @@ type Event struct {
 		RemindType     string
 		MaxScore       int
 		Description    string
-	}
+	} `gorm:"embedded"`
 }
 
 // AfterCreate cerca le scadenze a cui assolve l'evento inserito ed eventualmente genera la scadenza
