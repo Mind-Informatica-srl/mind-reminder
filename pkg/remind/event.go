@@ -169,12 +169,12 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (err error) {
 // searchForFirstRemind seleziona il primo remind in ordine di data con tipo e hook uguale all'evento
 // con assoluzioni posteriori all'evento o che ancora deve essere completamente assolto
 func (e Event) searchForFirstRemind(tx *gorm.DB, remind *Remind) (err error) {
-	return tx.Joins("Event", tx.Where("event_date < ?,", e.EventDate)).
-		Joins("(select sum(score) as tot_score, max(accomplish_at) as max_date, remind_id "+
+	return tx.Joins("Event", tx.Where("event_date < ?", e.EventDate)).
+		Joins("left join (select sum(score) as tot_score, max(accomplish_at) as max_date, remind_id "+
 			"from accomplishers group by remind_id) as accstatus on accstatus.remind_id = remind.id").
 		Where("accstatus.tot_score < remind.max_score or max_date > ?", e.EventDate).
 		Where("remind_type = ? and hook = ? and expire_at >= ?", e.EventType, e.Hook, e.EventDate).
-		Order("event.event_date").
+		Order("\"Event\".event_date").
 		Preload("Accomplishers.Event").
 		First(&remind).Error
 }
