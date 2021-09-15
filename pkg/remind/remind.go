@@ -107,12 +107,12 @@ func (r *Remind) searchForAccomplishers(tx *gorm.DB) (err error) {
 		var event Event
 		if err = tx.Joins("left join (select sum(score) as tot_score, max(accomplish_at) as max_date, event_id "+
 			"from accomplishers group by event_id) as accstatus on accstatus.event_id = events.id").
-			Where("accstatus.tot_score < events.accomplish_max_score or max_date > NULLIF(?,'0000-00-00 00:00:00')::timestamp without time zone", r.Event.EventDate).
+			Where("accstatus.tot_score < events.accomplish_max_score or max_date > ?", r.Event.EventDate).
 			Where("event_type = ? and hook = ?", r.RemindType, r.Event.Hook).
-			Where("event_date > NULLIF(?,'0000-00-00 00:00:00')::timestamp without time zone", r.Event.EventDate).
-			Where("event_date <= NULLIF(?,'0000-00-00 00:00:00')::timestamp without time zone", r.ExpireAt).
+			Where("event_date > ?", r.Event.EventDate).
+			Where("event_date <= ?", r.ExpireAt).
 			Order("events.event_date").
-			Preload("Accomplishers.Event").
+			Preload("accomplishers.Event").
 			First(&event).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				err = nil
