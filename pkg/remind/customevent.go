@@ -62,7 +62,7 @@ func (c *CustomEvent) GetEvent() (event Event, err error) {
 	}
 	dateValue, ok = c.EventData[c.EventDateKey].(time.Time)
 	if ok {
-		event.EventDate = dateValue
+		event.EventDate = &dateValue
 	} else {
 		err = NewCustomEventError("EventDate", c.EventDateKey, c)
 		return
@@ -88,7 +88,7 @@ func (c *CustomEvent) GetEvent() (event Event, err error) {
 	}
 	dateValue, ok = c.EventData[c.RemindExpirationDateKey].(time.Time)
 	if ok {
-		event.Remind.ExpirationDate = dateValue
+		event.Remind.ExpirationDate = &dateValue
 	} else {
 		err = NewCustomEventError("RemindExpirationDate", c.RemindExpirationDateKey, c)
 		return

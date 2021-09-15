@@ -13,13 +13,13 @@ import (
 type Event struct {
 	ID                 int
 	EventType          string
-	EventDate          time.Time
+	EventDate          *time.Time
 	AccomplishMinScore int
 	AccomplishMaxScore int
 	accomplishers      Accomplishers `gorm:"foreignKey:event_id;references:id"`
 	Hook               models.JSONB
 	Remind             struct {
-		ExpirationDate time.Time
+		ExpirationDate *time.Time
 		RemindType     string
 		MaxScore       int
 		Description    string
@@ -118,7 +118,7 @@ func (e Event) generateRemind() (remind Remind) {
 	return Remind{
 		Description: &e.Remind.Description,
 		RemindType:  e.Remind.RemindType,
-		ExpireAt:    e.Remind.ExpirationDate,
+		ExpireAt:    *e.Remind.ExpirationDate,
 		CreatedAt:   time.Now(),
 		MaxScore:    e.Remind.MaxScore,
 		EventID:     e.ID,
@@ -185,7 +185,7 @@ func createAccomplisher(event Event, remind Remind) (a Accomplisher) {
 	a = Accomplisher{
 		RemindID:     remind.ID,
 		EventID:      event.ID,
-		AccomplishAt: event.EventDate,
+		AccomplishAt: *event.EventDate,
 		Score:        delta,
 	}
 	return
