@@ -5,7 +5,6 @@ import (
 	"math"
 	"time"
 
-	"github.com/Mind-Informatica-srl/mind-reminder/internal/config"
 	"github.com/Mind-Informatica-srl/restapi/pkg/models"
 	"gorm.io/gorm"
 )
@@ -193,22 +192,19 @@ func createAccomplisher(event Event, remind Remind) (a Accomplisher) {
 }
 
 // AddEvent aggiunge un evento
-func AddEvent(event *Event) (err error) {
-	db := config.Current().DB
+func AddEvent(db *gorm.DB, event *Event) (err error) {
 	err = db.Create(event).Error
 	return
 }
 
 // UpdateEvent modifica un evento
-func UpdateEvent(event *Event) (err error) {
-	db := config.Current().DB
+func UpdateEvent(db *gorm.DB, event *Event) (err error) {
 	err = db.Save(event).Error
 	return
 }
 
 // DeleteEvent elimina un evento
-func DeleteEvent(event *Event) (err error) {
-	db := config.Current().DB
+func DeleteEvent(db *gorm.DB, event *Event) (err error) {
 	err = db.Delete(event).Error
 	return
 }

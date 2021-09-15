@@ -139,7 +139,7 @@ func (c *CustomEvent) AfterCreate(tx *gorm.DB) (err error) {
 	if err != nil {
 		return
 	}
-	return AddEvent(&event)
+	return AddEvent(tx, &event)
 }
 
 // BeforeDelete di CustomEvent
@@ -149,7 +149,7 @@ func (c *CustomEvent) BeforeDelete(tx *gorm.DB) (err error) {
 	if err != nil {
 		return
 	}
-	return DeleteEvent(&event)
+	return DeleteEvent(tx, &event)
 }
 
 // AfterUpdate di CustomEvent
@@ -159,5 +159,5 @@ func (c *CustomEvent) AfterUpdate(tx *gorm.DB) (err error) {
 	if err != nil {
 		return
 	}
-	return UpdateEvent(&event)
+	return UpdateEvent(tx, &event)
 }
