@@ -79,7 +79,7 @@ func (e *Event) BeforeDelete(tx *gorm.DB) (err error) {
 // AfterUpdate ripristina le assolvenze e la scadenza dell'evento dopo le modifiche
 func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 	// recupero il remind con le assolvenze
-	var remind *Remind
+	var remind Remind
 	if err = tx.Where("event_id = ?", e.ID).Preload("Accomplishers.Event.Accomplishers").First(&remind).Error; err != nil {
 		return
 	}
@@ -89,7 +89,7 @@ func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 	}
 	// recupero le assolvenze ad altri remind
 	var accs Accomplishers
-	if err = tx.Where("event_id = ?", e.ID).Preload("Event.Remind").Find(&accs).Error; err != nil {
+	if err = tx.Where("event_id = ?", e.ID).Find(&accs).Error; err != nil {
 		return
 	}
 	// le elimino
@@ -98,7 +98,7 @@ func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 			return
 		}
 	}
-	// chiamo beforeCreate
+	// chiamo AfterCreate
 	if err = e.AfterCreate(tx); err != nil {
 		return
 	}
