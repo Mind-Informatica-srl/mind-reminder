@@ -31,19 +31,33 @@ func (a CustomEventError) Error() string {
 	return fmt.Sprintf("CustomEvent error: invalid KEY VALUE %v for KEY %v", a.KeyValue, a.Key)
 }
 
+// CustomEvent evento di tipo custom
 type CustomEvent struct {
-	ID                        int
-	PrototypeID               int
-	EventData                 models.JSONB
-	EventTypeKey              string
-	EventDateKey              string
-	AccomplishMinScoreKey     string
-	AccomplishMaxScoreKey     string
-	HookKeys                  []string
-	RemindExpirationDateKey   string
-	RemindTypeKey             string
-	RemindMaxScoreKey         string
+	ID int
+	// id del prototipo
+	PrototypeID int
+	// jsonb con i dati dell'evento
+	EventData models.JSONB
+	// chiave per EventType per generazione Event
+	EventTypeKey string
+	// chiave per EventDate per generazione Event
+	EventDateKey string
+	// chiave per AccomplishMinScore per generazione Event
+	AccomplishMinScoreKey string
+	// chiave per AccomplishMaxScore per generazione Event
+	AccomplishMaxScoreKey string
+	// elenco di chiavi per Hook per generazione Event
+	HookKeys []string
+	// chiave per RemindExpirationDate per generazione Event
+	RemindExpirationDateKey string
+	// chiave per RemindType per generazione Event
+	RemindTypeKey string
+	// chiave per RemindMaxScore per generazione Event
+	RemindMaxScoreKey string
+	// template per la descrizione della scadenza per generazione Event
 	RemindDescriptionTemplate string
+	// template per la descrizione dell'oggetto della scadenza per generazione Event
+	RemindObjectDescriptionTemplate string
 }
 
 // GetEvent dato EventData in c (*CustomEvent)
@@ -111,7 +125,12 @@ func (c *CustomEvent) GetEvent() (event Event, err error) {
 	if err != nil {
 		return
 	}
-	event.Remind.Description = stringValue
+	event.Remind.RemindDescription = stringValue
+	stringValue, err = c.parseTemplate(c.RemindObjectDescriptionTemplate)
+	if err != nil {
+		return
+	}
+	event.Remind.ObjectDescription = stringValue
 	return
 }
 

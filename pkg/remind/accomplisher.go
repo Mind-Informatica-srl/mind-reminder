@@ -62,25 +62,3 @@ func (accomplishers Accomplishers) Score() (score int) {
 	}
 	return
 }
-
-// // Scan implements the database/sql Scanner interface.
-// func (dst *Accomplishers) Scan(src interface{}) error {
-// 	tmp := pq.GenericArray{
-// 		A: dst,
-// 	}
-// 	fmt.Println(tmp)
-// 	if err := tmp.Scan(src); err != nil {
-// 		return err
-// 	}
-// 	*dst = tmp.A.(Accomplishers)
-// 	return nil
-// }
-
-// // Value implements the database/sql/driver Valuer interface.
-// func (src Accomplishers) Value() (driver.Value, error) {
-// 	tmp, err := pq.GenericArray{
-// 		A: src,
-// 	}.Value()
-// 	fmt.Println(tmp)
-// 	return tmp, err
-// }

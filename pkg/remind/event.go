@@ -9,6 +9,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type EventRemind struct {
+	ExpirationDate    *time.Time
+	RemindType        string
+	MaxScore          int
+	RemindDescription string
+	ObjectDescription string
+}
+
 // Event rappresenta un evento che può generare un remind e assolverne altri
 type Event struct {
 	ID                 int
@@ -18,12 +26,7 @@ type Event struct {
 	AccomplishMaxScore int
 	accomplishers      Accomplishers `gorm:"foreignKey:event_id;references:id"`
 	Hook               models.JSONB
-	Remind             struct {
-		ExpirationDate *time.Time
-		RemindType     string
-		MaxScore       int
-		Description    string
-	} `gorm:"embedded"`
+	Remind             EventRemind `gorm:"embedded"`
 }
 
 // AfterCreate cerca le scadenze a cui assolve l'evento inserito ed eventualmente genera la scadenza
@@ -116,12 +119,13 @@ func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 
 func (e Event) generateRemind() (remind Remind) {
 	return Remind{
-		Description: &e.Remind.Description,
-		RemindType:  e.Remind.RemindType,
-		ExpireAt:    *e.Remind.ExpirationDate,
-		CreatedAt:   time.Now(),
-		MaxScore:    e.Remind.MaxScore,
-		EventID:     e.ID,
+		RemindDescription: &e.Remind.RemindDescription,
+		ObjectDescription: &e.Remind.ObjectDescription,
+		RemindType:        e.Remind.RemindType,
+		ExpireAt:          *e.Remind.ExpirationDate,
+		CreatedAt:         time.Now(),
+		MaxScore:          e.Remind.MaxScore,
+		EventID:           e.ID,
 	}
 }
 

@@ -18,7 +18,9 @@ import (
 type Remind struct {
 	ID int
 	// Descrizione della scadenza
-	Description *string
+	RemindDescription *string
+	// Descrizione dell'oggetto su cui insiste la scadenza'
+	ObjectDescription *string
 	// Tipo della scadenza
 	RemindType string
 	// id dell'evento
