@@ -132,14 +132,14 @@ func (e Event) generateRemind() (remind Remind) {
 func (e *Event) tryToAccomplish(tx *gorm.DB) (err error) {
 	for {
 		// finché c'è un remind da assolvere
-		var remind *Remind
-		if err = e.searchForFirstRemind(tx, remind); err != nil {
+		var remind Remind
+		if err = e.searchForFirstRemind(tx, &remind); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				err = nil
 			}
 			return
 		}
-		a := createAccomplisher(*e, *remind)
+		a := createAccomplisher(*e, remind)
 		if err = tx.Create(&a).Error; err != nil {
 			return
 		}
@@ -180,7 +180,7 @@ func (e Event) searchForFirstRemind(tx *gorm.DB, remind *Remind) (err error) {
 		Where("\"Event\".remind_type = ? and hook = ? and expire_at >= ?", e.EventType, e.Hook, e.EventDate).
 		Order("\"Event\".event_date").
 		Preload("Accomplishers.Event").
-		First(&remind).Error
+		First(remind).Error
 }
 
 func createAccomplisher(event Event, remind Remind) (a Accomplisher) {
