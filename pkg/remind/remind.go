@@ -50,11 +50,13 @@ func (r Remind) Accomplished() (
 	sort.Sort(r.Accomplishers)
 	for _, a := range r.Accomplishers {
 		score += a.Score
-		if score >= 1 && accomplisher.IsZero() {
-			accomplisher = a
-			accomplished = true
-		} else if score > 1 {
-			surplus = append(surplus, *a)
+		if r.MaxScore >= score {
+			if accomplisher.IsZero() {
+				accomplisher = a
+				accomplished = true
+			} else {
+				surplus = append(surplus, *a)
+			}
 		}
 	}
 	return
