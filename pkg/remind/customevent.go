@@ -102,21 +102,21 @@ func (c *CustomEvent) GetEvent() (event Event, err error) {
 	}
 	dateValue, ok = c.EventData[c.RemindExpirationDateKey].(time.Time)
 	if ok {
-		event.Remind.ExpirationDate = &dateValue
+		event.RemindInfo.ExpirationDate = &dateValue
 	} else {
 		err = NewCustomEventError("RemindExpirationDate", c.RemindExpirationDateKey, c)
 		return
 	}
 	stringValue, ok = c.EventData[c.RemindTypeKey].(string)
 	if ok {
-		event.Remind.RemindType = stringValue
+		event.RemindInfo.RemindType = stringValue
 	} else {
 		err = NewCustomEventError("RemindType", c.RemindTypeKey, c)
 		return
 	}
 	intValue, ok = c.EventData[c.RemindMaxScoreKey].(int)
 	if ok {
-		event.Remind.MaxScore = intValue
+		event.RemindInfo.MaxScore = intValue
 	} else {
 		err = NewCustomEventError("RemindMaxScore", c.RemindMaxScoreKey, c)
 		return
@@ -125,12 +125,12 @@ func (c *CustomEvent) GetEvent() (event Event, err error) {
 	if err != nil {
 		return
 	}
-	event.Remind.RemindDescription = stringValue
+	event.RemindInfo.RemindDescription = stringValue
 	stringValue, err = c.parseTemplate(c.RemindObjectDescriptionTemplate)
 	if err != nil {
 		return
 	}
-	event.Remind.ObjectDescription = stringValue
+	event.RemindInfo.ObjectDescription = stringValue
 	return
 }
 
