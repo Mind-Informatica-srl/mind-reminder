@@ -35,8 +35,9 @@ func (a *Accomplisher) VerifyPK(pk interface{}) (bool, error) {
 }
 
 // IsZero return true if the percentage is zero
-func (a Accomplisher) IsZero() bool {
-	return a.Score == 0
+// or a is nil
+func (a *Accomplisher) IsZero() bool {
+	return a == nil || (*a).Score == 0
 }
 
 // Accomplishers rappresenta un array di accomplisher

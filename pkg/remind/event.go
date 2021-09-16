@@ -24,7 +24,7 @@ type Event struct {
 	EventDate          *time.Time
 	AccomplishMinScore int
 	AccomplishMaxScore int
-	accomplishers      Accomplishers `gorm:"foreignKey:event_id;references:id"`
+	Accomplishers      Accomplishers `gorm:"foreignKey:event_id;references:id"`
 	Hook               models.JSONB
 	Remind             EventRemind `gorm:"embedded"`
 }
@@ -36,12 +36,12 @@ func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
 		return
 	}
 	// se non ho raggiunto il minimo do errore
-	if e.accomplishers.Score() < e.AccomplishMinScore {
+	if e.Accomplishers.Score() < e.AccomplishMinScore {
 		err = errors.New("min score not reached")
 		return
 	}
 	// se non ho raggiunto il massimo esco senza generare la scadenza
-	if e.accomplishers.Score() < e.AccomplishMaxScore {
+	if e.Accomplishers.Score() < e.AccomplishMaxScore {
 		return
 	}
 	// inserisco il remind
@@ -163,8 +163,8 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (err error) {
 		}
 
 		// se ho raggiunto il massimo mi fermo
-		e.accomplishers = append(e.accomplishers, &a)
-		if e.accomplishers.Score() >= e.AccomplishMaxScore {
+		e.Accomplishers = append(e.Accomplishers, &a)
+		if e.Accomplishers.Score() >= e.AccomplishMaxScore {
 			return
 		}
 	}
@@ -185,7 +185,7 @@ func (e Event) searchForFirstRemind(tx *gorm.DB, remind *Remind) (err error) {
 
 func createAccomplisher(event Event, remind Remind) (a Accomplisher) {
 	score := remind.Accomplishers.Score()
-	delta := int(math.Min(float64(event.AccomplishMaxScore-event.accomplishers.Score()), float64(remind.MaxScore-score)))
+	delta := int(math.Min(float64(event.AccomplishMaxScore-event.Accomplishers.Score()), float64(remind.MaxScore-score)))
 	a = Accomplisher{
 		RemindID:     remind.ID,
 		EventID:      event.ID,
