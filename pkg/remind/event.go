@@ -32,7 +32,6 @@ type Event struct {
 	EventDate          *time.Time
 	AccomplishMinScore int
 	AccomplishMaxScore int
-	RemindStrategy     RemindStrategy
 	Accomplishers      Accomplishers `gorm:"foreignKey:event_id;references:id"`
 	Hook               models.JSONB
 	RemindInfo         `gorm:"embedded"`
@@ -177,7 +176,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 		// valuto il remind e tratto il surplus
 		remind.Accomplishers = append(remind.Accomplishers, &a)
 		_, _, finalAccomplisher, surplus := remind.Accomplished()
-		if finalAccomplisher != nil && finalAccomplisher.ID == e.ID {
+		if finalAccomplisher != nil && finalAccomplisher.EventID == e.ID {
 			hasToGenerateRemind = true
 		}
 		for i := range surplus {

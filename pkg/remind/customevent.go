@@ -46,8 +46,6 @@ type CustomEvent struct {
 	AccomplishMinScoreKey string
 	// chiave per AccomplishMaxScore per generazione Event
 	AccomplishMaxScoreKey string
-	// chiave per IsAccomplishRequired per generazione Event
-	RemindStrategyKey string
 	// elenco di chiavi per Hook per generazione Event
 	HookKeys []string
 	// chiave per RemindExpirationDate per generazione Event
@@ -95,13 +93,6 @@ func (c *CustomEvent) GetEvent() (event Event, err error) {
 		event.AccomplishMaxScore = intValue
 	} else {
 		err = NewCustomEventError("AccomplishMaxScore", c.AccomplishMaxScoreKey, c)
-		return
-	}
-	stringValue, ok = c.EventData[c.RemindStrategyKey].(string)
-	if ok {
-		event.RemindStrategy = RemindStrategy(stringValue)
-	} else {
-		err = NewCustomEventError("RemindStrategy", c.RemindStrategyKey, c)
 		return
 	}
 	event.Hook = make(map[string]interface{}, len(c.HookKeys))
