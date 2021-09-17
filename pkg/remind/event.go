@@ -285,7 +285,9 @@ func (e *Event) getMaxScoreEvents(db *gorm.DB) (events []Event, err error) {
 	var list []Event
 	err = db.Select("events.*").Joins("left join "+acc.TableName()+" as acc on acc.event_id=events.id").
 		Where("hook = ? and remind_type = ?", e.Hook, e.RemindType).Order("event_date").
-		Where("acc.id is null").Find(&list).Error
+		Where("acc.id is null").
+		Where("event_date <= ?", e.EventDate).
+		Find(&list).Error
 	if err != nil {
 		return
 	}
