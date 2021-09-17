@@ -66,7 +66,8 @@ func (e *Event) BeforeDelete(tx *gorm.DB) (err error) {
 			return
 		}
 		var remind *Remind
-		if err = tx.Where("id = ?", accs[i].RemindID).Preload("Accomplishers").First(&remind).Error; err != nil {
+		if err = tx.Where("id = ?", accs[i].RemindID).
+			Preload("Accomplishers").First(&remind).Error; err != nil {
 			return
 		}
 		if err = remind.searchForAccomplishers(tx); err != nil {
@@ -80,12 +81,16 @@ func (e *Event) BeforeDelete(tx *gorm.DB) (err error) {
 func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 	// recupero il remind con le assolvenze
 	var remind Remind
-	if err = tx.Where("event_id = ?", e.ID).Preload("Accomplishers.Event.Accomplishers").First(&remind).Error; err != nil {
+	if err = tx.Where("event_id = ?", e.ID).
+		Preload("Accomplishers.Event.Accomplishers").
+		First(&remind).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
-	// lo elimino
-	if err = tx.Delete(&remind).Error; err != nil {
-		return
+	if remind.ID > 0 {
+		// lo elimino
+		if err = tx.Delete(&remind).Error; err != nil {
+			return
+		}
 	}
 	// recupero le assolvenze ad altri remind
 	var accs Accomplishers
@@ -102,10 +107,12 @@ func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 	if err = e.AfterCreate(tx); err != nil {
 		return
 	}
-	// per ogni assolvenza del remind, controllo l'evento relativo
-	for _, a := range remind.Accomplishers {
-		if err = a.Event.tryToAccomplish(tx); err != nil {
-			return
+	if remind.ID > 0 {
+		// per ogni assolvenza del remind, controllo l'evento relativo
+		for _, a := range remind.Accomplishers {
+			if err = a.Event.tryToAccomplish(tx); err != nil {
+				return
+			}
 		}
 	}
 	// per ogni remind prima assolto, lo controllo
