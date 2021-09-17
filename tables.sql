@@ -1,36 +1,38 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE IF NOT EXISTS public.remind_to_calculate
+CREATE TABLE IF NOT EXISTS public.events
 (
     id serial NOT NULL,
-    action text not null,
-    object_id text not null,
-    object_type text not null,
-    object_raw jsonb,
-    created_at timestamp without time zone DEFAULT now(),
-    elaborated_at timestamp without time zone,
-    error text,
-    CONSTRAINT to_remind_pkey PRIMARY KEY
-(id)
+    event_type text,
+    event_date timestamp without time zone,
+    accomplish_min_score integer,
+    accomplish_max_score integer,
+    expected_score integer,
+    hook jsonb,
+    expiration_date timestamp without time zone,
+    remind_type text NOT NULL,
+    remind_max_score integer,
+    remind_description text NOT NULL,
+    object_description text NOT NULL,
+    CONSTRAINT pk_events PRIMARY KEY (id)
 );
 -- +goose StatementEnd
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS public.remind
 (
     id serial NOT NULL,
-    description text,
-    remind_type text not null,
-    object_raw jsonb,
-    object_type text not null,
+    remind_description text,
+    remind_type text NOT NULL,
     expire_at timestamp without time zone,
-    accomplished_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT now(),
-    percentage numeric,
     status_description text,
     visibility text,
-    object_id text,
-    CONSTRAINT reminder_pkey PRIMARY KEY
-(id)
+    event_id integer NOT NULL,
+    max_score integer,
+    object_description text,
+    CONSTRAINT reminder_pkey PRIMARY KEY (id),
+    CONSTRAINT remind_events_fkey FOREIGN KEY (event_id)
+        REFERENCES public.events (id)
 );
 -- +goose StatementEnd
 -- +goose StatementBegin
@@ -38,11 +40,16 @@ CREATE TABLE IF NOT EXISTS public.accomplishers
 (
     id serial not null,
     remind_id integer not null,
-    object_id text not null,
+    event_id integer not null,
     accomplish_at timestamp without time zone,
-    percetange FLOAT,
+    score integer not null,
     constraint accomplischers_pkey primary key (id),
-    constraint accomplischers_reminders_fkey foreign key (remind_id) references remind(id)
+    constraint accomplischers_reminders_fkey 
+        foreign key (remind_id) 
+        references remind(id),
+    CONSTRAINT accomplischers_events_fkey 
+        FOREIGN KEY (event_id)
+        REFERENCES public.events (id)
 );
 -- +goose StatementEnd
 
@@ -52,8 +59,8 @@ CREATE TABLE IF NOT EXISTS public.accomplishers
 DROP TABLE if exists public.accomplishers;
 -- +goose StatementEnd
 -- +goose StatementBegin
-DROP TABLE if exists public.remind_to_calculate;
+DROP TABLE if exists public.reminder;
 -- +goose StatementEnd
 -- +goose StatementBegin
-DROP TABLE if exists public.reminder;
+DROP TABLE if exists public.events;
 -- +goose StatementEnd
