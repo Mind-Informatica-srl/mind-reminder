@@ -128,7 +128,7 @@ func (r *Remind) searchForAccomplishers(tx *gorm.DB) (err error) {
 		if err = tx.Create(&a).Error; err != nil {
 			return
 		}
-		if err = event.tryToAccomplish(tx); err != nil {
+		if err = event.elaborateEvent(tx); err != nil {
 			return
 		}
 		r.Accomplishers = append(r.Accomplishers, &a)

@@ -12,7 +12,7 @@ import (
 type RemindStrategy string
 
 const (
-	Always         RemindStrategy = "always"
+	Always         RemindStrategy = ""
 	MaxScore       RemindStrategy = "max_score"
 	ZeroOrMaxScore RemindStrategy = "zero_or_max_score"
 )
@@ -40,31 +40,7 @@ type Event struct {
 
 // AfterCreate cerca le scadenze a cui assolve l'evento inserito ed eventualmente genera la scadenza
 func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
-	// cerco i remind che posso assolvere e creo le assolvenze
-	if err = e.tryToAccomplish(tx); err != nil {
-		return
-	}
-	// se non ho raggiunto il minimo do errore
-	if e.Accomplishers.Score() < e.AccomplishMinScore {
-		err = errors.New("min score not reached")
-		return
-	}
-
-	switch e.RemindStrategy {
-	case MaxScore:
-		if e.Accomplishers.Score() < e.AccomplishMaxScore {
-			return
-		}
-	case ZeroOrMaxScore:
-		if e.AccomplishMaxScore == 0 || e.Accomplishers.Score() < e.AccomplishMaxScore {
-			return
-		}
-	}
-
-	// inserisco il remind
-	remind := e.generateRemind()
-	err = tx.Create(&remind).Error
-	return
+	return e.elaborateEvent(tx)
 }
 
 // BeforeDelete elimina le assolvenze e la scadenza generati dall'evento cancellato
@@ -127,7 +103,7 @@ func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 	if remind.ID > 0 {
 		// per ogni assolvenza del remind, controllo l'evento relativo
 		for _, a := range remind.Accomplishers {
-			if err = a.Event.tryToAccomplish(tx); err != nil {
+			if err = a.Event.elaborateEvent(tx); err != nil {
 				return
 			}
 		}
@@ -153,7 +129,38 @@ func (e Event) generateRemind() (remind Remind) {
 	}
 }
 
-func (e *Event) tryToAccomplish(tx *gorm.DB) (err error) {
+func (e *Event) elaborateEvent(tx *gorm.DB) (err error) {
+	// cerco i remind che posso assolvere e creo le assolvenze
+	var hasToGenerateRemind bool
+	hasToGenerateRemind, err = e.tryToAccomplish(tx)
+	if err != nil {
+		return
+	}
+	// se non ho raggiunto il minimo do errore
+	if e.Accomplishers.Score() < e.AccomplishMinScore {
+		err = errors.New("min score not reached")
+		return
+	}
+
+	// switch e.RemindStrategy {
+	// case MaxScore:
+	// 	if e.Accomplishers.Score() < e.AccomplishMaxScore {
+	// 		return
+	// 	}
+	// case ZeroOrMaxScore:
+	// 	if e.AccomplishMaxScore == 0 || e.Accomplishers.Score() < e.AccomplishMaxScore {
+	// 		return
+	// 	}
+	// }
+	if hasToGenerateRemind {
+		// inserisco il remind
+		remind := e.generateRemind()
+		err = tx.Create(&remind).Error
+	}
+	return
+}
+
+func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err error) {
 	for {
 		// finché c'è un remind da assolvere
 		var remind Remind
@@ -169,7 +176,10 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (err error) {
 		}
 		// valuto il remind e tratto il surplus
 		remind.Accomplishers = append(remind.Accomplishers, &a)
-		_, _, _, surplus := remind.Accomplished()
+		_, _, finalAccomplisher, surplus := remind.Accomplished()
+		if finalAccomplisher != nil && finalAccomplisher.ID == e.ID {
+			hasToGenerateRemind = true
+		}
 		for i := range surplus {
 			// elimino il surplus
 			if err = tx.Delete(&surplus[i]).Error; err != nil {
@@ -181,7 +191,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (err error) {
 				return
 			}
 			// aggiorno le assolvenze
-			if err = event.tryToAccomplish(tx); err != nil {
+			if err = event.elaborateEvent(tx); err != nil {
 				return
 			}
 		}
