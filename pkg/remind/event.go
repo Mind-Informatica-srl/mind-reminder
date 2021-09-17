@@ -20,7 +20,7 @@ const (
 type RemindInfo struct {
 	ExpirationDate    *time.Time
 	RemindType        string
-	MaxScore          int
+	RemindMaxScore    int
 	RemindDescription string
 	ObjectDescription string
 }
@@ -32,6 +32,7 @@ type Event struct {
 	EventDate          *time.Time
 	AccomplishMinScore int
 	AccomplishMaxScore int
+	ExpectedScore      int
 	Accomplishers      Accomplishers `gorm:"foreignKey:event_id;references:id"`
 	Hook               models.JSONB
 	RemindInfo         `gorm:"embedded"`
@@ -116,16 +117,22 @@ func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 	return nil
 }
 
-func (e Event) generateRemind() (remind Remind) {
+func (e *Event) getRemindFromEvent() Remind {
 	return Remind{
 		RemindDescription: &e.RemindInfo.RemindDescription,
 		ObjectDescription: &e.RemindInfo.ObjectDescription,
 		RemindType:        e.RemindInfo.RemindType,
 		ExpireAt:          *e.RemindInfo.ExpirationDate,
 		CreatedAt:         time.Now(),
-		MaxScore:          e.RemindInfo.MaxScore,
+		MaxScore:          e.RemindInfo.RemindMaxScore,
 		EventID:           e.ID,
 	}
+}
+
+// inserisce un nuovo Remind prendendo i dati da "e" di tipo Event
+func (e *Event) generateRemind(tx *gorm.DB) error {
+	remind := e.getRemindFromEvent()
+	return tx.Create(&remind).Error
 }
 
 func (e *Event) elaborateEvent(tx *gorm.DB) (err error) {
@@ -153,8 +160,30 @@ func (e *Event) elaborateEvent(tx *gorm.DB) (err error) {
 	// }
 	if hasToGenerateRemind {
 		// inserisco il remind
-		remind := e.generateRemind()
-		err = tx.Create(&remind).Error
+		err = e.generateRemind(tx)
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
+// addRemindsFromNonAccomplishedEvents inserisce eventuali Remind
+// generandoli da quegli eventi con stesso hook e tipo di "e"
+// e il cui AccomplishMaxScore sommato a quello degli eventi precedenti
+// raggiunge ExpectedScore di "e"
+func (e *Event) addRemindsFromNonAccomplishedEvents(tx *gorm.DB) (err error) {
+	var events []Event
+	events, err = e.getMaxScoreEvents(tx)
+	if err != nil {
+		return
+	}
+	for _, v := range events {
+		err = v.generateRemind(tx)
+		if err != nil {
+			return
+		}
+
 	}
 	return
 }
@@ -165,7 +194,9 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 		var remind Remind
 		if err = e.searchForFirstRemind(tx, &remind); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				hasToGenerateRemind = true
+				if err = e.addRemindsFromNonAccomplishedEvents(tx); err != nil {
+					return
+				}
 				err = nil
 			}
 			return
@@ -206,7 +237,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 
 // searchForFirstRemind seleziona il primo remind in ordine di data con tipo e hook uguale all'evento
 // con assoluzioni posteriori all'evento o che ancora deve essere completamente assolto
-func (e Event) searchForFirstRemind(tx *gorm.DB, remind *Remind) (err error) {
+func (e *Event) searchForFirstRemind(tx *gorm.DB, remind *Remind) (err error) {
 	return tx.Joins("Event", tx.Where("event_date <= ?", e.EventDate)).
 		Joins("left join (select sum(score) as tot_score, max(accomplish_at) as max_date, remind_id "+
 			"from accomplishers group by remind_id) as accstatus on accstatus.remind_id = remind.id").
@@ -244,5 +275,27 @@ func UpdateEvent(db *gorm.DB, event *Event) (err error) {
 // DeleteEvent elimina un evento
 func DeleteEvent(db *gorm.DB, event *Event) (err error) {
 	err = db.Delete(event).Error
+	return
+}
+
+// getMaxScoreEvents restituisce gli eventi dello stesso tipo il cui AccomplishMaxScore
+// sommato a quello dei precedenti in ordine di data raggiunge ExpectedScore di event
+func (e *Event) getMaxScoreEvents(db *gorm.DB) (events []Event, err error) {
+	var acc Accomplisher
+	var list []Event
+	err = db.Select("events.*").Joins("left join "+acc.TableName()+" as acc on acc.event_id=events.id").
+		Where("hook = ? and remind_type = ?", e.Hook, e.RemindType).Order("event_date").
+		Where("acc.id is null").Find(&list).Error
+	if err != nil {
+		return
+	}
+	score := 0
+	for i := 0; i < len(list); i++ {
+		score += list[i].AccomplishMaxScore
+		if score >= e.ExpectedScore {
+			score = 0
+			events = append(events, list[i])
+		}
+	}
 	return
 }
