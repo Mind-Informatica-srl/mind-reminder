@@ -165,6 +165,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 		var remind Remind
 		if err = e.searchForFirstRemind(tx, &remind); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
+				hasToGenerateRemind = true
 				err = nil
 			}
 			return
