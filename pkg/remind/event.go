@@ -51,7 +51,8 @@ func (e *Event) BeforeDelete(tx *gorm.DB) (err error) {
 	if err = tx.Where("event_id = ?", e.ID).Find(&accs).Error; err != nil {
 		return
 	}
-	if err = tx.Delete(&accs).Error; err != nil {
+	// where 1=1 per non avere gorm.ErrMissingWhereClause
+	if err = tx.Where("1 = 1").Delete(&accs).Error; err != nil {
 		return
 	}
 	// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
@@ -95,7 +96,8 @@ func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 	if remind.ID > 0 {
 		// si eliminano prima le assolvenze
 		if remind.Accomplishers.Len() > 0 {
-			if err = tx.Delete(&remind.Accomplishers).Error; err != nil {
+			// where 1=1 per non avere gorm.ErrMissingWhereClause
+			if err = tx.Where("1 = 1").Delete(&remind.Accomplishers).Error; err != nil {
 				return
 			}
 		}
