@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS public.events
     remind_max_score integer,
     remind_description text NOT NULL,
     object_description text NOT NULL,
+    remind_hook jsonb,
     CONSTRAINT pk_events PRIMARY KEY (id)
 );
 -- +goose StatementEnd
@@ -30,6 +31,7 @@ CREATE TABLE IF NOT EXISTS public.remind
     event_id integer NOT NULL,
     max_score integer,
     object_description text,
+    hook jsonb,
     CONSTRAINT reminder_pkey PRIMARY KEY (id),
     CONSTRAINT remind_events_fkey FOREIGN KEY (event_id)
         REFERENCES public.events (id)
