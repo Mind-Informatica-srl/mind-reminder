@@ -46,19 +46,20 @@ func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
 
 // BeforeDelete elimina le assolvenze e la scadenza generati dall'evento cancellato
 func (e *Event) BeforeDelete(tx *gorm.DB) (err error) {
-	// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
-	if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
-		return
-	}
 	// elimimo le assolvenze e rivaluto i remind relativi
 	var accs Accomplishers
 	if err = tx.Where("event_id = ?", e.ID).Find(&accs).Error; err != nil {
 		return
 	}
+	if err = tx.Delete(&accs).Error; err != nil {
+		return
+	}
+	// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
+	if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
+		return
+	}
+
 	for i := range accs {
-		if err = tx.Delete(&accs[i]).Error; err != nil {
-			return
-		}
 		var remind *Remind
 		if err = tx.Where("id = ?", accs[i].RemindID).
 			Preload("Accomplishers").First(&remind).Error; err != nil {
