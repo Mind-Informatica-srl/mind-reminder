@@ -60,6 +60,8 @@ type CustomEvent struct {
 	RemindDescriptionTemplate string
 	// template per la descrizione dell'oggetto della scadenza per generazione Event
 	RemindObjectDescriptionTemplate string
+	// elenco di chiavi per RemindHook per generazione Event
+	RemindHookKeys []string
 }
 
 // GetEvent dato EventData in c (*CustomEvent)
@@ -140,6 +142,11 @@ func (c *CustomEvent) GetEvent() (event Event, err error) {
 		return
 	}
 	event.RemindInfo.ObjectDescription = stringValue
+	event.RemindHook = make(map[string]interface{}, len(c.RemindHookKeys))
+	for i := 0; i < len(c.RemindHookKeys); i++ {
+		val := c.RemindHookKeys[i]
+		event.RemindHook[val] = c.EventData[val]
+	}
 	return
 }
 

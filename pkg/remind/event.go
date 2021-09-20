@@ -9,13 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type RemindStrategy string
+// type RemindStrategy string
 
-const (
-	Always         RemindStrategy = ""
-	MaxScore       RemindStrategy = "max_score"
-	ZeroOrMaxScore RemindStrategy = "zero_or_max_score"
-)
+// const (
+// 	Always         RemindStrategy = ""
+// 	MaxScore       RemindStrategy = "max_score"
+// 	ZeroOrMaxScore RemindStrategy = "zero_or_max_score"
+// )
 
 type RemindInfo struct {
 	ExpirationDate    *time.Time
@@ -23,6 +23,7 @@ type RemindInfo struct {
 	RemindMaxScore    int
 	RemindDescription string
 	ObjectDescription string
+	RemindHook        models.JSONB
 }
 
 // Event rappresenta un evento che può generare un remind e assolverne altri
@@ -127,6 +128,7 @@ func (e *Event) getRemindFromEvent() Remind {
 		CreatedAt:         time.Now(),
 		MaxScore:          e.RemindInfo.RemindMaxScore,
 		EventID:           e.ID,
+		Hook:              e.RemindHook,
 	}
 }
 
@@ -243,7 +245,7 @@ func (e *Event) searchForFirstRemind(tx *gorm.DB, remind *Remind) (err error) {
 		Joins("left join (select sum(score) as tot_score, max(accomplish_at) as max_date, remind_id "+
 			"from accomplishers group by remind_id) as accstatus on accstatus.remind_id = remind.id").
 		Where("coalesce(accstatus.tot_score,0) < remind.max_score or max_date > ?", e.EventDate).
-		Where("\"Event\".remind_type = ? and hook = ? and expire_at >= ?", e.EventType, e.Hook, e.EventDate).
+		Where("\"Event\".remind_type = ? and remind.hook = ? and expire_at >= ?", e.EventType, e.Hook, e.EventDate).
 		Order("\"Event\".event_date").
 		Preload("Accomplishers.Event").
 		First(remind).Error
