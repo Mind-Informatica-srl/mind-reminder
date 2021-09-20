@@ -93,7 +93,13 @@ func (e *Event) AfterUpdate(tx *gorm.DB) (err error) {
 		return
 	}
 	if remind.ID > 0 {
-		// lo elimino
+		// si eliminano prima le assolvenze
+		if remind.Accomplishers.Len() > 0 {
+			if err = tx.Delete(&remind.Accomplishers).Error; err != nil {
+				return
+			}
+		}
+		// elimino il remind
 		if err = tx.Delete(&remind).Error; err != nil {
 			return
 		}
