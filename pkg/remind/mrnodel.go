@@ -12,3 +12,22 @@ const (
 	// ActionDelete represent the deleting action
 	ActionDelete Action = "delete"
 )
+
+type DataFieldType string
+
+const (
+	Text     DataFieldType = "text"
+	Number   DataFieldType = "number"
+	Date     DataFieldType = "date"
+	Select   DataFieldType = "select"
+	Radio    DataFieldType = "radio"
+	Checkbox DataFieldType = "checkbox"
+)
+
+type SectionConfiguration string
+
+const (
+	EventFirst  SectionConfiguration = "event_first"
+	ObjectFirst SectionConfiguration = "object_first"
+	// Both SectionConfiguration = "both"
+)
