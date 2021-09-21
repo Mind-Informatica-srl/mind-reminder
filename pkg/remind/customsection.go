@@ -2,6 +2,7 @@ package remind
 
 import "time"
 
+// CustomSection struct per sezioni custom
 type CustomSection struct {
 	ID int
 	// titolo della sezione
@@ -15,16 +16,16 @@ type CustomSection struct {
 	// ordine di visualizzazione (prima oggetti o prima eventi)
 	Configuration SectionConfiguration
 	// posizione nel menu
-	Order int
+	SectionOrder int
 	// campo per indicare il riferimento della sezione
 	// se risorsa umana, oggetto custom o altro
 	Reference string
 	// id del prototipo dell'oggetto
-	ObjectPrototypeID *int
-	// struct CustomObject associato
-	ObjectPrototype *CustomObjectPrototype
-	// elenco dei CustomEvent
-	EventsPrototypes []CustomEvent
+	CustomObjectPrototypeID *int
+	// struct CustomObjectPrototype associato
+	CustomObjectPrototype *CustomObjectPrototype `gorm:"association_autoupdate:false;"`
+	// elenco dei CustomEventPrototype
+	CustomEventPrototypes []CustomEventPrototype `gorm:"many2many:custom_section_custom_event_prototypes;"`
 }
 
 // SetPK set the pk for the model

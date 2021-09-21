@@ -16,54 +16,12 @@ type CustomEvent struct {
 	// id del prototipo
 	CustomEventPrototypeID int
 	// jsonb con i dati dell'evento (semplicemnete chiave-valore)
-	EventData models.JSONB
+	Data models.JSONB
 	// prototipo dell'evento
 	CustomEventPrototype CustomEventPrototype `gorm:"association_autoupdate:false;"`
 	CustomObjectID       *int
 	// un evento può avere associato solo un oggetto
 	CustomObject *CustomObject `gorm:"association_autoupdate:false;"`
-}
-
-// CustomEventPrototype prototipo evento di tipo custom
-type CustomEventPrototype struct {
-	ID int
-	// nome del prototipo
-	Name string
-	// descrizione del prototipo
-	Description *string
-	// // campo per indicare il riferimento dell'evento
-	// // se risorsa umana, oggetto custom o altro
-	// Reference string
-	// data di creazione del prototipo
-	CreatedAt time.Time
-	// data di modifica del prototipo
-	UpdatedAt time.Time
-	// jsonb con i dati dell'evento
-	PrototypeEventData PrototypeEventData
-	// chiave per EventType per generazione Event
-	EventTypeKey string
-	// chiave per EventDate per generazione Event
-	EventDateKey string
-	// chiave per AccomplishMinScore per generazione Event
-	AccomplishMinScoreKey string
-	// chiave per AccomplishMaxScore per generazione Event
-	AccomplishMaxScoreKey string
-	// chiave per ExpectedScore per generazione Event
-	ExpectedScoreKey string
-	// elenco di chiavi per Hook per generazione Event
-	HookKeys []string
-	// chiave per RemindExpirationDate per generazione Event
-	RemindExpirationDateKey string
-	// chiave per RemindType per generazione Event
-	RemindTypeKey string
-	// chiave per RemindMaxScore per generazione Event
-	RemindMaxScoreKey string
-	// template per la descrizione della scadenza per generazione Event
-	RemindDescriptionTemplate string
-	// template per la descrizione dell'oggetto della scadenza per generazione Event
-	RemindObjectDescriptionTemplate string
-	// elenco di chiavi per RemindHook per generazione Event
-	RemindHookKeys []string
 }
 
 // GetEvent dato EventData in c (*CustomEvent)
@@ -73,35 +31,35 @@ func (c *CustomEvent) GetEvent() (event Event, err error) {
 	var intValue int
 	var dateValue time.Time
 	var ok bool
-	stringValue, ok = c.EventData[c.CustomEventPrototype.EventTypeKey].(string)
+	stringValue, ok = c.Data[c.CustomEventPrototype.EventTypeKey].(string)
 	if ok {
 		event.EventType = stringValue
 	} else {
 		err = NewCustomEventError("EventType", c.CustomEventPrototype.EventTypeKey, c)
 		return
 	}
-	dateValue, ok = c.EventData[c.CustomEventPrototype.EventDateKey].(time.Time)
+	dateValue, ok = c.Data[c.CustomEventPrototype.EventDateKey].(time.Time)
 	if ok {
 		event.EventDate = &dateValue
 	} else {
 		err = NewCustomEventError("EventDate", c.CustomEventPrototype.EventDateKey, c)
 		return
 	}
-	intValue, ok = c.EventData[c.CustomEventPrototype.AccomplishMinScoreKey].(int)
+	intValue, ok = c.Data[c.CustomEventPrototype.AccomplishMinScoreKey].(int)
 	if ok {
 		event.AccomplishMinScore = intValue
 	} else {
 		err = NewCustomEventError("AccomplishMinScore", c.CustomEventPrototype.AccomplishMinScoreKey, c)
 		return
 	}
-	intValue, ok = c.EventData[c.CustomEventPrototype.AccomplishMaxScoreKey].(int)
+	intValue, ok = c.Data[c.CustomEventPrototype.AccomplishMaxScoreKey].(int)
 	if ok {
 		event.AccomplishMaxScore = intValue
 	} else {
 		err = NewCustomEventError("AccomplishMaxScore", c.CustomEventPrototype.AccomplishMaxScoreKey, c)
 		return
 	}
-	intValue, ok = c.EventData[c.CustomEventPrototype.ExpectedScoreKey].(int)
+	intValue, ok = c.Data[c.CustomEventPrototype.ExpectedScoreKey].(int)
 	if ok {
 		event.ExpectedScore = intValue
 	} else {
@@ -111,23 +69,23 @@ func (c *CustomEvent) GetEvent() (event Event, err error) {
 	event.Hook = make(map[string]interface{}, len(c.CustomEventPrototype.HookKeys))
 	for i := 0; i < len(c.CustomEventPrototype.HookKeys); i++ {
 		val := c.CustomEventPrototype.HookKeys[i]
-		event.Hook[val] = c.EventData[val]
+		event.Hook[val] = c.Data[val]
 	}
-	dateValue, ok = c.EventData[c.CustomEventPrototype.RemindExpirationDateKey].(time.Time)
+	dateValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationDateKey].(time.Time)
 	if ok {
 		event.RemindInfo.ExpirationDate = &dateValue
 	} else {
 		err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationDateKey, c)
 		return
 	}
-	stringValue, ok = c.EventData[c.CustomEventPrototype.RemindTypeKey].(string)
+	stringValue, ok = c.Data[c.CustomEventPrototype.RemindTypeKey].(string)
 	if ok {
 		event.RemindInfo.RemindType = stringValue
 	} else {
 		err = NewCustomEventError("RemindType", c.CustomEventPrototype.RemindTypeKey, c)
 		return
 	}
-	intValue, ok = c.EventData[c.CustomEventPrototype.RemindMaxScoreKey].(int)
+	intValue, ok = c.Data[c.CustomEventPrototype.RemindMaxScoreKey].(int)
 	if ok {
 		event.RemindInfo.RemindMaxScore = intValue
 	} else {
@@ -147,7 +105,7 @@ func (c *CustomEvent) GetEvent() (event Event, err error) {
 	event.RemindHook = make(map[string]interface{}, len(c.CustomEventPrototype.RemindHookKeys))
 	for i := 0; i < len(c.CustomEventPrototype.RemindHookKeys); i++ {
 		val := c.CustomEventPrototype.RemindHookKeys[i]
-		event.RemindHook[val] = c.EventData[val]
+		event.RemindHook[val] = c.Data[val]
 	}
 	return
 }
@@ -161,7 +119,7 @@ func (c *CustomEvent) parseTemplate(templateString string) (value string, err er
 		return
 	}
 	var buffer bytes.Buffer
-	err = tmpl.Execute(&buffer, c.EventData)
+	err = tmpl.Execute(&buffer, c.Data)
 	if err != nil {
 		return
 	}
