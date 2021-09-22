@@ -17,3 +17,15 @@ type CustomObjectPrototype struct {
 	PrototypeObjectData PrototypeObjectData
 	DescriptionTemplate string
 }
+
+// SetPK set the pk for the model
+func (c *CustomObjectPrototype) SetPK(pk interface{}) error {
+	c.ID = pk.(int)
+	return nil
+}
+
+// VerifyPK check the pk value
+func (c *CustomObjectPrototype) VerifyPK(pk interface{}) (bool, error) {
+	id := pk.(int)
+	return c.ID == id, nil
+}

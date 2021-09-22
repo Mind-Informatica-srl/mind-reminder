@@ -24,6 +24,18 @@ type CustomEvent struct {
 	CustomObject *CustomObject `gorm:"association_autoupdate:false;"`
 }
 
+// SetPK set the pk for the model
+func (c *CustomEvent) SetPK(pk interface{}) error {
+	c.ID = pk.(int)
+	return nil
+}
+
+// VerifyPK check the pk value
+func (c *CustomEvent) VerifyPK(pk interface{}) (bool, error) {
+	id := pk.(int)
+	return c.ID == id, nil
+}
+
 // GetEvent dato EventData in c (*CustomEvent)
 // restituisce un evento ed un eventuale errore
 func (c *CustomEvent) GetEvent() (event Event, err error) {

@@ -47,3 +47,15 @@ type CustomEventPrototype struct {
 	// elenco di chiavi per RemindHook per generazione Event
 	RemindHookKeys pq.StringArray `gorm:"type:text[]"`
 }
+
+// SetPK set the pk for the model
+func (c *CustomEventPrototype) SetPK(pk interface{}) error {
+	c.ID = pk.(int)
+	return nil
+}
+
+// VerifyPK check the pk value
+func (c *CustomEventPrototype) VerifyPK(pk interface{}) (bool, error) {
+	id := pk.(int)
+	return c.ID == id, nil
+}
