@@ -8,7 +8,7 @@ import (
 
 // PrototypeEventData json base per PrototypeEventData in struct eventi ed oggetti custom
 type PrototypeEventData struct {
-	Fields map[string]DataField `json:"fields"`
+	Fields []DataField `json:"fields"`
 }
 
 // GormDataType per PrototypeEventData
@@ -35,7 +35,7 @@ func (a *PrototypeEventData) Scan(value interface{}) error {
 
 // DataField struct per DataField usato in PrototypeEventData e PrototypeObjectData
 type DataField struct {
-	// Name     string             `json:"name"`
+	Name         string        `json:"name"`
 	Type         DataFieldType `json:"type"`
 	Label        string        `json:"label"`
 	DefaultValue *interface{}  `json:"default_value"`

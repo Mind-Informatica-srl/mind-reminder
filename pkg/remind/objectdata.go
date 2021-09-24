@@ -8,7 +8,7 @@ import (
 
 // PrototypeObjectData json base per PrototypeObjectData in struct eventi ed oggetti custom
 type PrototypeObjectData struct {
-	Fields map[string]DataField `json:"fields"`
+	Fields []DataField `json:"fields"`
 }
 
 // GormDataType per PrototypeObjectData
