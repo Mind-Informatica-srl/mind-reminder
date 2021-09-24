@@ -35,12 +35,16 @@ func (a *PrototypeEventData) Scan(value interface{}) error {
 
 // DataField struct per DataField usato in PrototypeEventData e PrototypeObjectData
 type DataField struct {
-	Name         string        `json:"name"`
-	Type         DataFieldType `json:"type"`
-	Label        string        `json:"label"`
-	DefaultValue *interface{}  `json:"default_value"`
-	Required     bool          `json:"required"`
-	Tooltip      *string       `json:"tooltip"`
-	Hint         *string       `json:"hint"`
-	Options      *[]string     `json:"options"`
+	Name         string             `json:"name"`
+	Type         DataFieldType      `json:"type"`
+	Label        string             `json:"label"`
+	DefaultValue *interface{}       `json:"default_value"`
+	Required     bool               `json:"required"`
+	Tooltip      *string            `json:"tooltip"`
+	Hint         *string            `json:"hint"`
+	Options      *[]OptionDataField `json:"options"`
+}
+
+type OptionDataField struct {
+	Value string `json:"value"`
 }
