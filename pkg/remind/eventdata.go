@@ -8,7 +8,7 @@ import (
 
 // PrototypeEventData json base per PrototypeEventData in struct eventi ed oggetti custom
 type PrototypeEventData struct {
-	Fields []DataField `json:"fields"`
+	Fields *[]DataField `json:"fields"`
 }
 
 // GormDataType per PrototypeEventData
