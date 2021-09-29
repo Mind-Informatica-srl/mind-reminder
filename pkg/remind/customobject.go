@@ -9,6 +9,7 @@ type CustomObject struct {
 	ID int
 	// id del prototipo
 	CustomObjectPrototypeID int
+	CustomSectionID         int
 	// jsonb con i dati dell'oggetto
 	Data models.JSONB
 	// prototipo dell'oggetto
