@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
+	"strings"
 	"text/template"
 	"time"
 
+	"github.com/Mind-Informatica-srl/restapi/pkg/constants"
 	"github.com/Mind-Informatica-srl/restapi/pkg/models"
 	"gorm.io/gorm"
 )
@@ -62,9 +64,15 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 			return
 		}
 	}
-	dateValue, ok = c.Data[c.CustomEventPrototype.EventDateKey].(time.Time)
+	stringValue, ok = c.Data[c.CustomEventPrototype.EventDateKey].(string)
 	if ok {
-		event.EventDate = &dateValue
+		dateValue, err = ParseDate(stringValue)
+		if err == nil {
+			event.EventDate = &dateValue
+		} else {
+			err = NewCustomEventError("EventDate", c.CustomEventPrototype.EventDateKey, c)
+			return
+		}
 	} else {
 		err = NewCustomEventError("EventDate", c.CustomEventPrototype.EventDateKey, c)
 		return
@@ -107,13 +115,21 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		val := c.CustomEventPrototype.HookKeys[i]
 		event.Hook[val] = c.Data[val]
 	}
-	dateValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationDateKey].(time.Time)
+
+	stringValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationDateKey].(string)
 	if ok {
-		event.RemindInfo.ExpirationDate = &dateValue
+		dateValue, err = ParseDate(stringValue)
+		if err == nil {
+			event.RemindInfo.ExpirationDate = &dateValue
+		} else {
+			err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationDateKey, c)
+			return
+		}
 	} else {
 		err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationDateKey, c)
 		return
 	}
+
 	event.RemindInfo.RemindType = c.CustomEventPrototype.RemindTypeKey
 	// stringValue, ok = c.Data[c.CustomEventPrototype.RemindTypeKey].(string)
 	// if ok {
@@ -148,6 +164,27 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	for i := 0; i < len(c.CustomEventPrototype.RemindHookKeys); i++ {
 		val := c.CustomEventPrototype.RemindHookKeys[i]
 		event.RemindHook[val] = c.Data[val]
+	}
+	return
+}
+
+func ParseDate(dateString string) (date time.Time, err error) {
+	date, err = time.Parse("2006-01-02T15:04:05Z", dateString)
+	if err != nil {
+		if !strings.Contains(dateString, "Z") {
+			date, err = time.Parse(constants.DateFormatStringYYYYMMDDTHHMMSS, dateString)
+			if err != nil {
+				if !strings.Contains(dateString, "T") {
+					date, err = time.Parse(constants.DateFormatStringYYYYMMDD, dateString)
+					if err != nil {
+						return
+					}
+				}
+				return
+			}
+		} else {
+			return
+		}
 	}
 	return
 }
