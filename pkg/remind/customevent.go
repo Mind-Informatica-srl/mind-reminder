@@ -40,13 +40,19 @@ func (c *CustomEvent) VerifyPK(pk interface{}) (bool, error) {
 
 // GetEvent dato EventData in c (*CustomEvent)
 // restituisce un evento ed un eventuale errore
-func (c *CustomEvent) GetEvent() (event Event, err error) {
+func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	var stringValue string
 	var intValue int
 	var dateValue time.Time
 	var ok bool
+	if c.CustomEventPrototype.ID == 0 {
+		// se non c'è già, carico CustomEventPrototype dal db
+		if err = db.Table("custom_event_prototypes").Where("id=?", c.CustomEventPrototypeID).First(&c.CustomEventPrototype).Error; err != nil {
+			return
+		}
+	}
 	if c.CustomEventPrototype.EventTypeKey == "" {
-		event.EventType = strconv.Itoa(event.ID)
+		event.EventType = strconv.Itoa(c.ID)
 	} else {
 		stringValue, ok = c.Data[c.CustomEventPrototype.EventTypeKey].(string)
 		if ok {
@@ -166,7 +172,7 @@ func (c *CustomEvent) parseTemplate(templateString string) (value string, err er
 // AfterCreate di CustomEvent
 func (c *CustomEvent) AfterCreate(tx *gorm.DB) (err error) {
 	var event Event
-	event, err = c.GetEvent()
+	event, err = c.GetEvent(tx)
 	if err != nil {
 		return
 	}
@@ -176,7 +182,7 @@ func (c *CustomEvent) AfterCreate(tx *gorm.DB) (err error) {
 // BeforeDelete di CustomEvent
 func (c *CustomEvent) BeforeDelete(tx *gorm.DB) (err error) {
 	var event Event
-	event, err = c.GetEvent()
+	event, err = c.GetEvent(tx)
 	if err != nil {
 		return
 	}
@@ -186,7 +192,7 @@ func (c *CustomEvent) BeforeDelete(tx *gorm.DB) (err error) {
 // AfterUpdate di CustomEvent
 func (c *CustomEvent) AfterUpdate(tx *gorm.DB) (err error) {
 	var event Event
-	event, err = c.GetEvent()
+	event, err = c.GetEvent(tx)
 	if err != nil {
 		return
 	}

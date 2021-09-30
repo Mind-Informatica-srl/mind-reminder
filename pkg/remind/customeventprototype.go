@@ -22,6 +22,8 @@ type CustomEventPrototype struct {
 	UpdatedAt time.Time
 	// jsonb con i dati dell'evento
 	PrototypeEventData PrototypeEventData
+	// template per la descrizione dell'evento
+	EventDescriptionTemplate string
 	// chiave per EventType per generazione Event
 	EventTypeKey string
 	// chiave per EventDate per generazione Event
