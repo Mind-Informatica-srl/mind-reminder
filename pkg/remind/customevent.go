@@ -50,7 +50,13 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	var ok bool
 	if c.CustomEventPrototype.ID == 0 {
 		// se non c'è già, carico CustomEventPrototype dal db
-		if err = db.Table("custom_event_prototypes").Where("id=?", c.CustomEventPrototypeID).First(&c.CustomEventPrototype).Error; err != nil {
+		if c.CustomEventPrototypeID == 0 {
+			// significa che non abbiamo le info necessarie (vedi caso delete in
+			// cui valorizziamo per esempio solo ID). Si prendono dal db
+			if err = db.Table("custom_events").Preload("CustomEventPrototype").Where("id=?", c.ID).First(&c).Error; err != nil {
+				return
+			}
+		} else if err = db.Table("custom_event_prototypes").Where("id=?", c.CustomEventPrototypeID).First(&c.CustomEventPrototype).Error; err != nil {
 			return
 		}
 	}
