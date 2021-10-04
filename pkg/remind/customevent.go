@@ -154,8 +154,8 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	}
 	event.RemindInfo.ObjectDescription = stringValue
 	event.RemindHook = make(map[string]interface{}, len(c.CustomEventPrototype.RemindHookKeys)+2)
-	event.Hook["object_reference_id"] = c.ObjectReferenceID
-	event.Hook["event_type"] = event.RemindType
+	event.RemindHook["object_reference_id"] = c.ObjectReferenceID
+	event.RemindHook["event_type"] = event.RemindType
 	for i := 0; i < len(c.CustomEventPrototype.RemindHookKeys); i++ {
 		val := c.CustomEventPrototype.RemindHookKeys[i]
 		event.RemindHook[val] = c.Data[val]
