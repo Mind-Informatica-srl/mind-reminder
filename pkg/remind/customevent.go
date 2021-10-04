@@ -23,7 +23,6 @@ type CustomEvent struct {
 	Data models.JSONB
 	// prototipo dell'evento
 	CustomEventPrototype CustomEventPrototype `gorm:"association_autoupdate:false;"`
-	CustomObjectID       *int
 	// un evento può avere associato solo un oggetto
 	CustomObject      *CustomObject `gorm:"association_autoupdate:false;"`
 	ObjectReferenceID string
