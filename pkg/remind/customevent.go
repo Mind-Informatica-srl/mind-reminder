@@ -23,10 +23,10 @@ type CustomEvent struct {
 	Data models.JSONB
 	// prototipo dell'evento
 	CustomEventPrototype CustomEventPrototype `gorm:"association_autoupdate:false;"`
-	// un evento può avere associato solo un oggetto
-	CustomObject      *CustomObject `gorm:"association_autoupdate:false;"`
+	// un evento può avere associato solo un oggetto/azienda/utente
 	ObjectReferenceID string
-	EventID           int
+	// id dell'evento della tabella events che è associato al customEvent
+	EventID int
 }
 
 // SetPK set the pk for the model
@@ -201,7 +201,7 @@ func (c *CustomEvent) parseTemplate(templateString string) (value string, err er
 	return
 }
 
-// AfterCreate di CustomEvent
+// BeforeCreate di CustomEvent
 func (c *CustomEvent) BeforeCreate(tx *gorm.DB) (err error) {
 	var event Event
 	event, err = c.GetEvent(tx)
@@ -225,7 +225,7 @@ func (c *CustomEvent) BeforeDelete(tx *gorm.DB) (err error) {
 	return DeleteEvent(tx, &event)
 }
 
-// AfterUpdate di CustomEvent
+// BeforeUpdate di CustomEvent
 func (c *CustomEvent) BeforeUpdate(tx *gorm.DB) (err error) {
 	var event Event
 	event, err = c.GetEvent(tx)
