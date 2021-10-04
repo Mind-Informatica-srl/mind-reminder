@@ -46,7 +46,6 @@ func (c *CustomEvent) VerifyPK(pk interface{}) (bool, error) {
 func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	var stringValue string
 	var intValue int
-	var dateValue time.Time
 	var ok bool
 	if c.CustomEventPrototype.ID == 0 {
 		// se non c'è già, carico CustomEventPrototype dal db
@@ -65,6 +64,7 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	event.EventType = strconv.Itoa(c.CustomEventPrototypeID)
 	stringValue, ok = c.Data[c.CustomEventPrototype.EventDateKey].(string)
 	if ok {
+		var dateValue time.Time
 		dateValue, err = ParseDate(stringValue)
 		if err == nil {
 			event.EventDate = &dateValue
@@ -119,6 +119,7 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 
 	stringValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationDateKey].(string)
 	if ok {
+		var dateValue time.Time
 		dateValue, err = ParseDate(stringValue)
 		if err == nil {
 			event.RemindInfo.ExpirationDate = &dateValue
