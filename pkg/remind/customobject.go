@@ -14,8 +14,6 @@ type CustomObject struct {
 	Data models.JSONB
 	// prototipo dell'oggetto
 	CustomObjectPrototype *CustomObjectPrototype `gorm:"association_autoupdate:false;"`
-	// un oggetto può avere associati più eventi
-	CustomEvents *[]CustomEvent `gorm:"association_autoupdate:false;"`
 }
 
 // SetPK set the pk for the model
