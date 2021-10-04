@@ -27,6 +27,7 @@ type CustomEvent struct {
 	// un evento può avere associato solo un oggetto
 	CustomObject      *CustomObject `gorm:"association_autoupdate:false;"`
 	ObjectReferenceID string
+	EventID           int
 }
 
 // SetPK set the pk for the model
@@ -61,6 +62,7 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		}
 	}
 	// EventType è id del prototipo in stringa
+	event.ID = c.EventID
 	event.EventType = strconv.Itoa(c.CustomEventPrototypeID)
 	stringValue, ok = c.Data[c.CustomEventPrototype.EventDateKey].(string)
 	if ok {
@@ -201,13 +203,17 @@ func (c *CustomEvent) parseTemplate(templateString string) (value string, err er
 }
 
 // AfterCreate di CustomEvent
-func (c *CustomEvent) AfterCreate(tx *gorm.DB) (err error) {
+func (c *CustomEvent) BeforeCreate(tx *gorm.DB) (err error) {
 	var event Event
 	event, err = c.GetEvent(tx)
 	if err != nil {
 		return
 	}
-	return AddEvent(tx, &event)
+	if err = AddEvent(tx, &event); err != nil {
+		return
+	}
+	c.EventID = event.ID
+	return
 }
 
 // BeforeDelete di CustomEvent
@@ -221,7 +227,7 @@ func (c *CustomEvent) BeforeDelete(tx *gorm.DB) (err error) {
 }
 
 // AfterUpdate di CustomEvent
-func (c *CustomEvent) AfterUpdate(tx *gorm.DB) (err error) {
+func (c *CustomEvent) BeforeUpdate(tx *gorm.DB) (err error) {
 	var event Event
 	event, err = c.GetEvent(tx)
 	if err != nil {
