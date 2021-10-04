@@ -25,7 +25,8 @@ type CustomEvent struct {
 	CustomEventPrototype CustomEventPrototype `gorm:"association_autoupdate:false;"`
 	CustomObjectID       *int
 	// un evento può avere associato solo un oggetto
-	CustomObject *CustomObject `gorm:"association_autoupdate:false;"`
+	CustomObject      *CustomObject `gorm:"association_autoupdate:false;"`
+	ObjectReferenceID string
 }
 
 // SetPK set the pk for the model
@@ -53,17 +54,8 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 			return
 		}
 	}
-	if c.CustomEventPrototype.EventTypeKey == "" {
-		event.EventType = strconv.Itoa(c.ID)
-	} else {
-		stringValue, ok = c.Data[c.CustomEventPrototype.EventTypeKey].(string)
-		if ok {
-			event.EventType = stringValue
-		} else {
-			err = NewCustomEventError("EventType", c.CustomEventPrototype.EventTypeKey, c)
-			return
-		}
-	}
+	// EventType è id del prototipo in stringa
+	event.EventType = strconv.Itoa(c.CustomEventPrototypeID)
 	stringValue, ok = c.Data[c.CustomEventPrototype.EventDateKey].(string)
 	if ok {
 		dateValue, err = ParseDate(stringValue)
@@ -110,7 +102,9 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 			return
 		}
 	}
-	event.Hook = make(map[string]interface{}, len(c.CustomEventPrototype.HookKeys))
+	event.Hook = make(map[string]interface{}, len(c.CustomEventPrototype.HookKeys)+2)
+	event.Hook["object_reference_id"] = c.ObjectReferenceID
+	event.Hook["event_type"] = event.EventType
 	for i := 0; i < len(c.CustomEventPrototype.HookKeys); i++ {
 		val := c.CustomEventPrototype.HookKeys[i]
 		event.Hook[val] = c.Data[val]
@@ -131,14 +125,6 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	}
 
 	event.RemindInfo.RemindType = c.CustomEventPrototype.RemindTypeKey
-	// stringValue, ok = c.Data[c.CustomEventPrototype.RemindTypeKey].(string)
-	// if ok {
-	// 	event.RemindInfo.RemindType = stringValue
-	// } else {
-	// 	err = NewCustomEventError("RemindType", c.CustomEventPrototype.RemindTypeKey, c)
-	// 	return
-	// }
-
 	if c.CustomEventPrototype.RemindMaxScoreKey == "" {
 		event.RemindInfo.RemindMaxScore = 1
 	} else {
@@ -160,7 +146,9 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		return
 	}
 	event.RemindInfo.ObjectDescription = stringValue
-	event.RemindHook = make(map[string]interface{}, len(c.CustomEventPrototype.RemindHookKeys))
+	event.RemindHook = make(map[string]interface{}, len(c.CustomEventPrototype.RemindHookKeys)+2)
+	event.Hook["object_reference_id"] = c.ObjectReferenceID
+	event.Hook["event_type"] = event.RemindType
 	for i := 0; i < len(c.CustomEventPrototype.RemindHookKeys); i++ {
 		val := c.CustomEventPrototype.RemindHookKeys[i]
 		event.RemindHook[val] = c.Data[val]

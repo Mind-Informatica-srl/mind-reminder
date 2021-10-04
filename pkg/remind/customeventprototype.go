@@ -24,8 +24,6 @@ type CustomEventPrototype struct {
 	PrototypeEventData PrototypeEventData
 	// template per la descrizione dell'evento
 	EventDescriptionTemplate string
-	// chiave per EventType per generazione Event
-	EventTypeKey string
 	// chiave per EventDate per generazione Event
 	EventDateKey string
 	// chiave per AccomplishMinScore per generazione Event
