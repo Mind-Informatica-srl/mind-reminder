@@ -34,8 +34,8 @@ type CustomEventPrototype struct {
 	ExpectedScoreKey string
 	// elenco di chiavi per Hook per generazione Event
 	HookKeys pq.StringArray `gorm:"type:text[]"`
-	// chiave per RemindExpirationDate per generazione Event
-	RemindExpirationDateKey string
+	// chiave per RemindExpirationIntervalKey per generazione Event
+	RemindExpirationIntervalKey string
 	// chiave per RemindType per generazione Event
 	RemindTypeKey string
 	// chiave per RemindMaxScore per generazione Event

@@ -117,18 +117,19 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		event.Hook[val] = c.Data[val]
 	}
 
-	stringValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationDateKey].(string)
+	stringValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationIntervalKey].(string)
 	if ok {
-		var dateValue time.Time
-		dateValue, err = ParseDate(stringValue)
+		var intervalValue models.PGInterval
+		err = intervalValue.UnmarshalJSON([]byte(stringValue))
 		if err == nil {
+			dateValue := event.EventDate.AddDate(0, int(intervalValue.Months), int(intervalValue.Days))
 			event.RemindInfo.ExpirationDate = &dateValue
 		} else {
-			err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationDateKey, c)
+			err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
 			return
 		}
 	} else {
-		err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationDateKey, c)
+		err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
 		return
 	}
 
@@ -149,11 +150,16 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		return
 	}
 	event.RemindInfo.RemindDescription = stringValue
+
 	stringValue, err = c.parseTemplate(c.CustomEventPrototype.RemindObjectDescriptionTemplate)
 	if err != nil {
 		return
 	}
+	// TODO per ObjectDescription: dalla sezione si deve ricavare il tipo di riferimento dell'oggetto
+	// Oppure RemindObjectDescriptionTemplate invece di essere il template è direttamente già
+	// la descrizione dell'oggetto
 	event.RemindInfo.ObjectDescription = stringValue
+
 	event.RemindHook = make(map[string]interface{}, len(c.CustomEventPrototype.RemindHookKeys)+2)
 	event.RemindHook["object_reference_id"] = c.ObjectReferenceID
 	event.RemindHook["event_type"] = event.RemindType
