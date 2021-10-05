@@ -42,8 +42,6 @@ type CustomEventPrototype struct {
 	RemindMaxScoreKey string
 	// template per la descrizione della scadenza per generazione Event
 	RemindDescriptionTemplate string
-	// template per la descrizione dell'oggetto della scadenza per generazione Event
-	RemindObjectDescriptionTemplate string
 	// elenco di chiavi per RemindHook per generazione Event
 	RemindHookKeys pq.StringArray `gorm:"type:text[]"`
 }
