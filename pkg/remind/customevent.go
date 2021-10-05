@@ -223,14 +223,12 @@ func (c *CustomEvent) getCustomEventReferenceObjectDescription(db *gorm.DB) (des
 		}
 	} else {
 		// si recupera la descrizione da referenceObjectMap
-		var referenceObj *ReferenceObject
+		var referenceObj ReferenceObject
 		referenceObj, err = GetReferenceObject(db, section.Reference, c.ObjectReferenceID)
 		if err != nil {
 			return
 		}
-		if referenceObj != nil {
-			description = (*referenceObj).GetDescription()
-		}
+		description = (referenceObj).GetDescription()
 	}
 	return
 }

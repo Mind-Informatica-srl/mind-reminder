@@ -18,10 +18,10 @@ func RegisterReferenceObject(objectType string, f func(db *gorm.DB, id interface
 	referenceObjectMap[objectType] = f
 }
 
-func GetReferenceObject(db *gorm.DB, objType string, id interface{}) (obj *ReferenceObject, err error) {
+func GetReferenceObject(db *gorm.DB, objType string, id interface{}) (obj ReferenceObject, err error) {
 	f := referenceObjectMap[objType]
 	if f != nil {
-		*obj, err = f(db, id)
+		obj, err = f(db, id)
 	}
 	return
 }
