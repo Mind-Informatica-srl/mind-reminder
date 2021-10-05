@@ -163,7 +163,7 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		if err = db.Where("id=?", section.CustomObjectPrototypeID).First(&obj).Error; err != nil {
 			return
 		}
-		stringValue, err = parseGenericTemplate(obj, c.CustomEventPrototype.RemindObjectDescriptionTemplate)
+		stringValue, err = parseGenericTemplate(obj.Data, c.CustomEventPrototype.RemindObjectDescriptionTemplate)
 		if err != nil {
 			return
 		}
