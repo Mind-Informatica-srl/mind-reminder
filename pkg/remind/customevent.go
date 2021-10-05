@@ -118,20 +118,20 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		event.Hook[val] = c.Data[val]
 	}
 
-	stringValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationIntervalKey].(string)
-	if ok {
-		var intervalValue models.Interval
-		if err = json.Unmarshal([]byte(stringValue), &intervalValue); err != nil {
-			err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
-			return
-		} else {
-			dateValue := event.EventDate.AddDate(int(intervalValue.Anni), int(intervalValue.Mesi), intervalValue.Giorni)
-			event.RemindInfo.ExpirationDate = &dateValue
-		}
-	} else {
+	var intervalValue models.Interval
+	var intervalBytes []byte
+	intervalBytes, err = json.Marshal(c.Data[c.CustomEventPrototype.RemindExpirationIntervalKey])
+	if err != nil {
 		err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
 		return
 	}
+	err = json.Unmarshal(intervalBytes, &intervalValue)
+	if err != nil {
+		err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
+		return
+	}
+	dateValue := event.EventDate.AddDate(int(intervalValue.Anni), int(intervalValue.Mesi), intervalValue.Giorni)
+	event.RemindInfo.ExpirationDate = &dateValue
 
 	event.RemindInfo.RemindType = c.CustomEventPrototype.RemindTypeKey
 	if c.CustomEventPrototype.RemindMaxScoreKey == "" {
