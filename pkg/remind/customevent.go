@@ -117,17 +117,11 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		event.Hook[val] = c.Data[val]
 	}
 
-	stringValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationIntervalKey].(string)
+	var intervalValue models.Interval
+	intervalValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationIntervalKey].(models.Interval)
 	if ok {
-		var intervalValue models.PGInterval
-		err = intervalValue.UnmarshalJSON([]byte(stringValue))
-		if err == nil {
-			dateValue := event.EventDate.AddDate(0, int(intervalValue.Months), int(intervalValue.Days))
-			event.RemindInfo.ExpirationDate = &dateValue
-		} else {
-			err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
-			return
-		}
+		dateValue := event.EventDate.AddDate(int(intervalValue.Anni), int(intervalValue.Mesi), intervalValue.Giorni)
+		event.RemindInfo.ExpirationDate = &dateValue
 	} else {
 		err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
 		return
