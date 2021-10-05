@@ -2,6 +2,7 @@ package remind
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -117,11 +118,16 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		event.Hook[val] = c.Data[val]
 	}
 
-	var intervalValue models.Interval
-	intervalValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationIntervalKey].(models.Interval)
+	stringValue, ok = c.Data[c.CustomEventPrototype.RemindExpirationIntervalKey].(string)
 	if ok {
-		dateValue := event.EventDate.AddDate(int(intervalValue.Anni), int(intervalValue.Mesi), intervalValue.Giorni)
-		event.RemindInfo.ExpirationDate = &dateValue
+		var intervalValue models.Interval
+		if err = json.Unmarshal([]byte(stringValue), &intervalValue); err != nil {
+			err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
+			return
+		} else {
+			dateValue := event.EventDate.AddDate(int(intervalValue.Anni), int(intervalValue.Mesi), intervalValue.Giorni)
+			event.RemindInfo.ExpirationDate = &dateValue
+		}
 	} else {
 		err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
 		return
