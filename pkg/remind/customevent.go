@@ -122,12 +122,10 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	var intervalBytes []byte
 	intervalBytes, err = json.Marshal(c.Data[c.CustomEventPrototype.RemindExpirationIntervalKey])
 	if err != nil {
-		err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
 		return
 	}
 	err = json.Unmarshal(intervalBytes, &intervalValue)
 	if err != nil {
-		err = NewCustomEventError("RemindExpirationDate", c.CustomEventPrototype.RemindExpirationIntervalKey, c)
 		return
 	}
 	dateValue := event.EventDate.AddDate(int(intervalValue.Anni), int(intervalValue.Mesi), intervalValue.Giorni)
@@ -151,15 +149,26 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	}
 	event.RemindInfo.RemindDescription = stringValue
 
-	stringValue, err = c.parseTemplate(c.CustomEventPrototype.RemindObjectDescriptionTemplate)
-	if err != nil {
-		return
-	}
 	// TODO per ObjectDescription: dalla sezione si deve ricavare il tipo di riferimento dell'oggetto
 	// Oppure RemindObjectDescriptionTemplate invece di essere il template è direttamente già
 	// la descrizione dell'oggetto
-	event.RemindInfo.ObjectDescription = stringValue
 
+	// recuper le info della sezione collegata
+	var section CustomSection
+	if err = db.Where("id=?", c.CustomSectionID).First(&section).Error; err != nil {
+		return
+	}
+	if section.CustomObjectPrototypeID != nil && *section.CustomObjectPrototypeID != 0 {
+		var obj CustomObject
+		if err = db.Where("id=?", section.CustomObjectPrototypeID).First(&obj).Error; err != nil {
+			return
+		}
+		stringValue, err = parseGenericTemplate(obj, c.CustomEventPrototype.RemindObjectDescriptionTemplate)
+		if err != nil {
+			return
+		}
+		event.RemindInfo.ObjectDescription = stringValue
+	}
 	event.RemindHook = make(map[string]interface{}, len(c.CustomEventPrototype.RemindHookKeys)+2)
 	event.RemindHook["object_reference_id"] = c.ObjectReferenceID
 	event.RemindHook["event_type"] = event.RemindType
@@ -191,21 +200,25 @@ func ParseDate(dateString string) (date time.Time, err error) {
 	return
 }
 
-// parseTemplate parsa templateString prendendo i dati da EventData
-// ES: {{.Count}} items are made of {{.Material}}
-func (c *CustomEvent) parseTemplate(templateString string) (value string, err error) {
+func parseGenericTemplate(values interface{}, templateString string) (value string, err error) {
 	var tmpl *template.Template
-	tmpl, err = template.New("reminddescription").Parse(templateString)
+	tmpl, err = template.New("mind_reminder_template").Parse(templateString)
 	if err != nil {
 		return
 	}
 	var buffer bytes.Buffer
-	err = tmpl.Execute(&buffer, c.Data)
+	err = tmpl.Execute(&buffer, values)
 	if err != nil {
 		return
 	}
 	value = buffer.String()
 	return
+}
+
+// parseTemplate parsa templateString prendendo i dati da EventData
+// ES: {{.Count}} items are made of {{.Material}}
+func (c *CustomEvent) parseTemplate(templateString string) (value string, err error) {
+	return parseGenericTemplate(c.Data, templateString)
 }
 
 // BeforeCreate di CustomEvent
