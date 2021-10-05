@@ -149,25 +149,9 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	}
 	event.RemindInfo.RemindDescription = stringValue
 
-	// TODO per ObjectDescription: dalla sezione si deve ricavare il tipo di riferimento dell'oggetto
-	// Oppure RemindObjectDescriptionTemplate invece di essere il template è direttamente già
-	// la descrizione dell'oggetto
-
-	// recuper le info della sezione collegata
-	var section CustomSection
-	if err = db.Where("id=?", c.CustomSectionID).First(&section).Error; err != nil {
+	event.RemindInfo.ObjectDescription, err = c.getCustomEventReferenceObjectDescription(db)
+	if err != nil {
 		return
-	}
-	if section.CustomObjectPrototypeID != nil && *section.CustomObjectPrototypeID != 0 {
-		var obj CustomObject
-		if err = db.Where("id=?", section.CustomObjectPrototypeID).First(&obj).Error; err != nil {
-			return
-		}
-		stringValue, err = parseGenericTemplate(obj.Data, c.CustomEventPrototype.RemindObjectDescriptionTemplate)
-		if err != nil {
-			return
-		}
-		event.RemindInfo.ObjectDescription = stringValue
 	}
 	event.RemindHook = make(map[string]interface{}, len(c.CustomEventPrototype.RemindHookKeys)+2)
 	event.RemindHook["object_reference_id"] = c.ObjectReferenceID
@@ -219,6 +203,36 @@ func parseGenericTemplate(values interface{}, templateString string) (value stri
 // ES: {{.Count}} items are made of {{.Material}}
 func (c *CustomEvent) parseTemplate(templateString string) (value string, err error) {
 	return parseGenericTemplate(c.Data, templateString)
+}
+
+func (c *CustomEvent) getCustomEventReferenceObjectDescription(db *gorm.DB) (description string, err error) {
+	// recupero le info della sezione collegata
+	var section CustomSection
+	if err = db.Where("id=?", c.CustomSectionID).Preload("CustomObjectPrototype").First(&section).Error; err != nil {
+		return
+	}
+	if section.CustomObjectPrototype != nil {
+		// si recupera il template della descrizione dal prototipo oggetto
+		var obj CustomObject
+		if err = db.Where("id=?", section.CustomObjectPrototypeID).First(&obj).Error; err != nil {
+			return
+		}
+		description, err = parseGenericTemplate(obj.Data, section.CustomObjectPrototype.DescriptionTemplate)
+		if err != nil {
+			return
+		}
+	} else {
+		// si recupera la descrizione da referenceObjectMap
+		var referenceObj *ReferenceObject
+		referenceObj, err = GetReferenceObject(db, section.Reference, c.ObjectReferenceID)
+		if err != nil {
+			return
+		}
+		if referenceObj != nil {
+			description = (*referenceObj).GetDescription()
+		}
+	}
+	return
 }
 
 // BeforeCreate di CustomEvent
