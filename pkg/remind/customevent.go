@@ -164,7 +164,7 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 }
 
 func ParseDate(dateString string) (date time.Time, err error) {
-	date, err = time.Parse("2006-01-02T15:04:05Z", dateString)
+	date, err = time.Parse(constants.DateFormatStringYYYYMMDDTHHMMSSZ, dateString)
 	if err != nil {
 		if !strings.Contains(dateString, "Z") {
 			date, err = time.Parse(constants.DateFormatStringYYYYMMDDTHHMMSS, dateString)
@@ -214,7 +214,12 @@ func (c *CustomEvent) getCustomEventReferenceObjectDescription(db *gorm.DB) (des
 	if section.CustomObjectPrototype != nil {
 		// si recupera il template della descrizione dal prototipo oggetto
 		var obj CustomObject
-		if err = db.Where("id=?", section.CustomObjectPrototypeID).First(&obj).Error; err != nil {
+		var objId int
+		objId, err = strconv.Atoi(c.ObjectReferenceID)
+		if err != nil {
+			return
+		}
+		if err = db.Where("id=?", objId).First(&obj).Error; err != nil {
 			return
 		}
 		description, err = parseGenericTemplate(obj.Data, section.CustomObjectPrototype.DescriptionTemplate)

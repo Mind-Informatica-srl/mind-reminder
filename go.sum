@@ -9,6 +9,8 @@ github.com/Mind-Informatica-srl/restapi v1.0.10 h1:xgHcvkAILieoyGunCego3uP+FJ1Jt
 github.com/Mind-Informatica-srl/restapi v1.0.10/go.mod h1:lbduTQfjKYSPkFWyh9k0343aU13IIykdK2OeDbHjqgE=
 github.com/Mind-Informatica-srl/restapi v1.0.19 h1:SG/Xjl18oeS2FUTu9V1hPFepWZoeKSFHbtQrJif+Z6Y=
 github.com/Mind-Informatica-srl/restapi v1.0.19/go.mod h1:2dm7Bg9DXZC4Tk5/Gs/o7Xa6ZnDmG95BXb+4AsjElY8=
+github.com/Mind-Informatica-srl/restapi v1.0.20 h1:b3mpCJnIqbyg095lk5Y9Aksun9uCKf/OcSuchOxvczw=
+github.com/Mind-Informatica-srl/restapi v1.0.20/go.mod h1:2dm7Bg9DXZC4Tk5/Gs/o7Xa6ZnDmG95BXb+4AsjElY8=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
