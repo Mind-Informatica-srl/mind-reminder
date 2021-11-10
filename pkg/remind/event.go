@@ -143,8 +143,12 @@ func (e *Event) getRemindFromEvent() Remind {
 
 // inserisce un nuovo Remind prendendo i dati da "e" di tipo Event
 func (e *Event) generateRemind(tx *gorm.DB) error {
-	remind := e.getRemindFromEvent()
-	return tx.Create(&remind).Error
+	if e.RemindInfo.ExpirationDate != nil {
+		// se c'è ExpirationDate si genera remind
+		remind := e.getRemindFromEvent()
+		return tx.Create(&remind).Error
+	}
+	return nil
 }
 
 func (e *Event) elaborateEvent(tx *gorm.DB) (err error) {
