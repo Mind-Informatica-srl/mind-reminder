@@ -51,9 +51,12 @@ func (e *Event) BeforeDelete(tx *gorm.DB) (err error) {
 	if err = tx.Where("event_id = ?", e.ID).Find(&accs).Error; err != nil {
 		return
 	}
-	// where 1=1 per non avere gorm.ErrMissingWhereClause
-	if err = tx.Where("1 = 1").Delete(&accs).Error; err != nil {
-		return
+	if accs.Len() > 0 {
+		// where 1=1 per non avere gorm.ErrMissingWhereClause
+		if err = tx.Where("1 = 1").Delete(&accs).Error; err != nil {
+			return
+		}
+
 	}
 	// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
 	if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
