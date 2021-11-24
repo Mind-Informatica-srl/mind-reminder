@@ -59,11 +59,11 @@ func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
 			if err = tx.Where("1 = 1").Delete(&nextEv.Accomplishers).Error; err != nil {
 				return
 			}
-			// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
-			if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
-				return
-			}
 
+		}
+		// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
+		if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
+			return
 		}
 	}
 
@@ -74,7 +74,9 @@ func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
 
 	for _, nextEv := range nextEvents {
 		if nextEv.Accomplishers.Len() == 0 {
-			nextEv.elaborateEvent(tx)
+			if err = nextEv.elaborateEvent(tx); err != nil {
+				return
+			}
 		} else {
 			for i := range nextEv.Accomplishers {
 				var remind *Remind
