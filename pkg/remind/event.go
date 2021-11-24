@@ -40,44 +40,44 @@ type Event struct {
 
 // AfterCreate cerca le scadenze a cui assolve l'evento inserito ed eventualmente genera la scadenza
 func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
-	// cerco eventuali eventi successivi
-	// per i quali vanno cancellate le scadenze e le assolvenze
-	var nextEvents []Event
-	nextEvents, err = e.getNextEvents(tx)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			err = nil
-		}
-		return
-	}
+	// // cerco eventuali eventi successivi
+	// // per i quali vanno cancellate le scadenze e le assolvenze
+	// var nextEvents []Event
+	// nextEvents, err = e.getNextEvents(tx)
+	// if err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		err = nil
+	// 	}
+	// 	return
+	// }
 
-	for _, nextEv := range nextEvents {
-		if nextEv.Accomplishers.Len() > 0 {
-			// elimimo le eventuali assolvenze successive
+	// for _, nextEv := range nextEvents {
+	// 	if nextEv.Accomplishers.Len() > 0 {
+	// 		// elimimo le eventuali assolvenze successive
 
-			// where 1=1 per non avere gorm.ErrMissingWhereClause
-			if err = tx.Where("1 = 1").Delete(&nextEv.Accomplishers).Error; err != nil {
-				return
-			}
+	// 		// where 1=1 per non avere gorm.ErrMissingWhereClause
+	// 		if err = tx.Where("1 = 1").Delete(&nextEv.Accomplishers).Error; err != nil {
+	// 			return
+	// 		}
 
-		}
-		// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
-		if err = tx.Where("event_id = ?", nextEv.ID).Delete(&Remind{}).Error; err != nil {
-			return
-		}
-	}
+	// 	}
+	// 	// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
+	// 	if err = tx.Where("event_id = ?", nextEv.ID).Delete(&Remind{}).Error; err != nil {
+	// 		return
+	// 	}
+	// }
 
 	err = e.elaborateEvent(tx)
 	if err != nil {
 		return
 	}
 
-	for _, nextEv := range nextEvents {
-		nextEv.Accomplishers = nil
-		if err = nextEv.elaborateEvent(tx); err != nil {
-			return
-		}
-	}
+	// for _, nextEv := range nextEvents {
+	// 	nextEv.Accomplishers = nil
+	// 	if err = nextEv.elaborateEvent(tx); err != nil {
+	// 		return
+	// 	}
+	// }
 	return
 }
 
@@ -198,6 +198,7 @@ func (e *Event) elaborateEvent(tx *gorm.DB) (err error) {
 	if err != nil {
 		return
 	}
+
 	// se non ho raggiunto il minimo do errore
 	if e.Accomplishers.Score() < e.AccomplishMinScore {
 		err = errors.New("min score not reached")
@@ -210,44 +211,55 @@ func (e *Event) elaborateEvent(tx *gorm.DB) (err error) {
 		if err != nil {
 			return
 		}
+	} else {
+		// elimino l'eventuale remind
+		if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
+			return
+		}
 	}
 
 	return
 }
 
-// getNextEvents restituisce gli eventuali eventi dello stesso tipo successivi a e.EventDate
-func (e *Event) getNextEvents(db *gorm.DB) (events []Event, err error) {
-	var acc Accomplisher
-	err = db.Select("events.*").Joins("left join "+acc.TableName()+" as acc on acc.event_id=events.id").
-		Where("hook = ? and remind_type = ?", e.Hook, e.RemindType).
-		Order("event_date").
-		// Where("acc.id is null").
-		Where("event_date > ?", e.EventDate).
-		Preload("Accomplishers").
-		Find(&events).Error
-	if err != nil {
-		return
-	}
-	return
-}
+// // getNextEvents restituisce gli eventuali eventi dello stesso tipo successivi a e.EventDate
+// func (e *Event) getNextEvents(db *gorm.DB) (events []Event, err error) {
+// 	var acc Accomplisher
+// 	err = db.Select("events.*").Joins("left join "+acc.TableName()+" as acc on acc.event_id=events.id").
+// 		Where("hook = ? and remind_type = ?", e.Hook, e.RemindType).
+// 		Order("event_date").
+// 		// Where("acc.id is null").
+// 		Where("event_date > ?", e.EventDate).
+// 		Preload("Accomplishers").
+// 		Find(&events).Error
+// 	if err != nil {
+// 		return
+// 	}
+// 	return
+// }
 
-// addRemindsFromNonAccomplishedEvents inserisce eventuali Remind
+// addRemindFromNonAccomplishedEvents inserisce eventuali Remind
 // generandoli da quegli eventi con stesso hook e tipo di "e"
 // e il cui AccomplishMaxScore sommato a quello degli eventi precedenti
 // raggiunge ExpectedScore di "e"
-func (e *Event) addRemindsFromNonAccomplishedEvents(tx *gorm.DB) (err error) {
+func (e *Event) addRemindFromNonAccomplishedEvents(tx *gorm.DB) (err error) {
 	var events []Event
 	events, err = e.getMaxScoreEvents(tx)
 	if err != nil {
 		return
 	}
-	for _, v := range events {
-		err = v.generateRemind(tx)
+	if len(events) > 0 {
+		err = events[len(events)-1].generateRemind(tx)
 		if err != nil {
 			return
 		}
-
 	}
+	// for _, v := range events {
+	// 	err = v.generateRemind(tx)
+	// 	if err != nil {
+	// 		return
+	// 	}
+
+	// }
 	return
 }
 
@@ -257,7 +269,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 		var remind Remind
 		if err = e.searchForFirstRemind(tx, &remind); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				if err = e.addRemindsFromNonAccomplishedEvents(tx); err != nil {
+				if err = e.addRemindFromNonAccomplishedEvents(tx); err != nil {
 					return
 				}
 				err = nil
@@ -332,7 +344,8 @@ func (e *Event) searchForFirstRemind(tx *gorm.DB, remind *Remind) (err error) {
 	return tx.Joins("Event", tx.Where("event_date <= ?", e.EventDate)).
 		Joins("left join (select sum(score) as tot_score, max(accomplish_at) as max_date, remind_id "+
 			"from accomplishers group by remind_id) as accstatus on accstatus.remind_id = remind.id").
-		Where("coalesce(accstatus.tot_score,0) < remind.max_score or max_date > ?", e.EventDate).
+		// Where("coalesce(accstatus.tot_score,0) < remind.max_score or max_date > ?", e.EventDate).
+		Where("max_date > ?", e.EventDate).
 		Where("\"Event\".remind_type = ? and remind.hook = ? and expire_at >= ?", e.EventType, e.Hook, e.EventDate).
 		Order("\"Event\".event_date").
 		Preload("Accomplishers.Event").
