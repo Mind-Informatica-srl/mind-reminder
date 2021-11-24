@@ -233,7 +233,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 		// si cerca l'indice in cui dover inserire "a"
 		if remind.Accomplishers.Len() > 0 {
 			for i := 0; i < len(remind.Accomplishers); i++ {
-				if newEventDate.After(*remind.Accomplishers[i].Event.EventDate) {
+				if newEventDate.Before(*remind.Accomplishers[i].Event.EventDate) {
 					index = i
 					break
 				}
@@ -264,7 +264,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 			}
 			// controllo l'evento
 			var event Event
-			if err = tx.Where("ID = ?", surplus[i].EventID).Preload("Accomplishers").First(&event).Error; err != nil {
+			if err = tx.Where("ID = ?", a.EventID).Preload("Accomplishers").First(&event).Error; err != nil {
 				return
 			}
 			// aggiorno le assolvenze
