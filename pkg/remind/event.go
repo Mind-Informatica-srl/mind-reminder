@@ -223,6 +223,10 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 		if err = tx.Create(&a).Error; err != nil {
 			return
 		}
+		// si recupera l'evento da db
+		if err = tx.Where("id = ?", a.EventID).First(&a.Event).Error; err != nil {
+			return
+		}
 		// inserisco "a" dentro lo slice di remind.Accomplishers (secondo l'ordine delle date dell'evento)
 		newEventDate := a.Event.EventDate
 		var index int
