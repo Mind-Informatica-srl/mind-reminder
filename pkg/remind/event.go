@@ -227,10 +227,12 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 		newEventDate := a.Event.EventDate
 		var index int
 		// si cerca l'indice in cui dover inserire "a"
-		for i := 0; i < len(remind.Accomplishers); i++ {
-			if newEventDate.After(*remind.Accomplishers[i].Event.EventDate) {
-				index = i
-				break
+		if remind.Accomplishers.Len() > 0 {
+			for i := 0; i < len(remind.Accomplishers); i++ {
+				if newEventDate.After(*remind.Accomplishers[i].Event.EventDate) {
+					index = i
+					break
+				}
 			}
 		}
 		// remind.Accomplishers = append(remind.Accomplishers, &a)
