@@ -40,44 +40,44 @@ type Event struct {
 
 // AfterCreate cerca le scadenze a cui assolve l'evento inserito ed eventualmente genera la scadenza
 func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
-	// // cerco eventuali eventi successivi
-	// // per i quali vanno cancellate le scadenze e le assolvenze
-	// var nextEvents []Event
-	// nextEvents, err = e.getNextEvents(tx)
-	// if err != nil {
-	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
-	// 		err = nil
-	// 	}
-	// 	return
-	// }
+	// cerco eventuali eventi successivi
+	// per i quali vanno cancellate le scadenze e le assolvenze
+	var nextEvents []Event
+	nextEvents, err = e.getNextEvents(tx)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			err = nil
+		}
+		return
+	}
 
-	// for _, nextEv := range nextEvents {
-	// 	if nextEv.Accomplishers.Len() > 0 {
-	// 		// elimimo le eventuali assolvenze successive
+	for _, nextEv := range nextEvents {
+		if nextEv.Accomplishers.Len() > 0 {
+			// elimimo le eventuali assolvenze successive
 
-	// 		// where 1=1 per non avere gorm.ErrMissingWhereClause
-	// 		if err = tx.Where("1 = 1").Delete(&nextEv.Accomplishers).Error; err != nil {
-	// 			return
-	// 		}
+			// where 1=1 per non avere gorm.ErrMissingWhereClause
+			if err = tx.Where("1 = 1").Delete(&nextEv.Accomplishers).Error; err != nil {
+				return
+			}
 
-	// 	}
-	// 	// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
-	// 	if err = tx.Where("event_id = ?", nextEv.ID).Delete(&Remind{}).Error; err != nil {
-	// 		return
-	// 	}
-	// }
+		}
+		// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
+		if err = tx.Where("event_id = ?", nextEv.ID).Delete(&Remind{}).Error; err != nil {
+			return
+		}
+	}
 
 	err = e.elaborateEvent(tx)
 	if err != nil {
 		return
 	}
 
-	// for _, nextEv := range nextEvents {
-	// 	nextEv.Accomplishers = nil
-	// 	if err = nextEv.elaborateEvent(tx); err != nil {
-	// 		return
-	// 	}
-	// }
+	for _, nextEv := range nextEvents {
+		nextEv.Accomplishers = nil
+		if err = nextEv.elaborateEvent(tx); err != nil {
+			return
+		}
+	}
 	return
 }
 
@@ -320,11 +320,6 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 					return
 				}
 			}
-			// elimino l'eventuale remind
-			if err = tx.Where("event_id = ?", surplus[i].ID).Delete(&Remind{}).Error; err != nil {
-				return
-			}
-
 			// controllo l'evento
 			var event Event
 			if err = tx.Where("ID = ?", surplus[i].EventID).Preload("Accomplishers").First(&event).Error; err != nil {
