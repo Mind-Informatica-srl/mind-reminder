@@ -104,10 +104,16 @@ func (e *Event) BeforeDelete(tx *gorm.DB) (err error) {
 		var remind *Remind
 		if err = tx.Where("id = ?", accs[i].RemindID).
 			Preload("Accomplishers").First(&remind).Error; err != nil {
-			return
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				err = nil
+			} else {
+				return
+			}
 		}
-		if err = remind.searchForAccomplishers(tx); err != nil {
-			return
+		if remind.ID > 0 {
+			if err = remind.searchForAccomplishers(tx); err != nil {
+				return
+			}
 		}
 	}
 	return
