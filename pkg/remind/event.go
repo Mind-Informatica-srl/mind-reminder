@@ -328,12 +328,10 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 
 			// controllo l'evento
 			var event Event
-			// if err = tx.Where("ID = ?", surplus[i].EventID).Preload("Accomplishers").First(&event).Error; err != nil {
-			// 	return
-			// }
-			if err = tx.Where("ID = ?", surplus[i].EventID).First(&event).Error; err != nil {
+			if err = tx.Where("ID = ?", surplus[i].EventID).Preload("Accomplishers").First(&event).Error; err != nil {
 				return
 			}
+
 			// aggiorno le assolvenze
 			if err = event.elaborateEvent(tx); err != nil {
 				return
