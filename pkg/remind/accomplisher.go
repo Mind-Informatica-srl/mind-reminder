@@ -63,3 +63,13 @@ func (accomplishers Accomplishers) Score() (score int) {
 	}
 	return
 }
+
+// Insert inserisce un accomplisher ad un determinato indice index
+func (accomplishers Accomplishers) Insert(index int, value *Accomplisher) Accomplishers {
+	if accomplishers.Len() == index { // nil or empty slice or after last element
+		return append(accomplishers, value)
+	}
+	accomplishers = append(accomplishers[:index+1], accomplishers[index:]...) // index < len(a)
+	accomplishers[index] = value
+	return accomplishers
+}

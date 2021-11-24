@@ -53,8 +53,19 @@ func (r Remind) Accomplished() (
 		score += a.Score
 		if r.MaxScore <= score {
 			if accomplisher.IsZero() {
-				accomplisher = a
+				copy := *a // si crea una copia
+				accomplisher = &copy
 				accomplished = true
+				if r.MaxScore < score {
+					// si diminuisce il valore dello score
+					// dell'accomplisher
+					accomplisher.Score = a.Score - (score - r.MaxScore)
+					// si aggiunge un surplus con il punteggio residuo
+					extra := *a
+					extra.ID = 0 // ID a zero per svincolarlo da "a" (ovvero dall'accomplisher)
+					extra.Score = score - r.MaxScore
+					surplus = append(surplus, extra)
+				}
 			} else {
 				surplus = append(surplus, *a)
 			}

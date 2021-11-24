@@ -2,7 +2,6 @@ package remind
 
 import (
 	"errors"
-	"math"
 	"time"
 
 	"github.com/Mind-Informatica-srl/restapi/pkg/models"
@@ -224,20 +223,42 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 		if err = tx.Create(&a).Error; err != nil {
 			return
 		}
+		// inserisco "a" dentro lo slice di remind.Accomplishers (secondo l'ordine delle date dell'evento)
+		newEventDate := a.Event.EventDate
+		var index int
+		// si cerca l'indice in cui dover inserire "a"
+		for i := 0; i < len(remind.Accomplishers); i++ {
+			if newEventDate.After(*remind.Accomplishers[i].Event.EventDate) {
+				index = i
+				break
+			}
+		}
+		// remind.Accomplishers = append(remind.Accomplishers, &a)
+		remind.Accomplishers = remind.Accomplishers.Insert(index, &a)
+
 		// valuto il remind e tratto il surplus
-		remind.Accomplishers = append(remind.Accomplishers, &a)
 		_, _, finalAccomplisher, surplus := remind.Accomplished()
 		if finalAccomplisher != nil && finalAccomplisher.EventID == e.ID {
+			for _, v := range remind.Accomplishers {
+				if v.ID == finalAccomplisher.ID && v.Score != finalAccomplisher.Score {
+					// si aggiorna l'accomplisher (perchè è stato modificato il suo score)
+					if err = tx.Save(&finalAccomplisher).Error; err != nil {
+						return
+					}
+				}
+			}
 			hasToGenerateRemind = true
 		}
 		for i := range surplus {
 			// elimino il surplus
-			if err = tx.Delete(&surplus[i]).Error; err != nil {
-				return
+			if surplus[i].ID > 0 {
+				if err = tx.Delete(&surplus[i]).Error; err != nil {
+					return
+				}
 			}
 			// controllo l'evento
 			var event Event
-			if err = tx.Where("ID = ?", a.EventID).Preload("Accomplishers").First(&event).Error; err != nil {
+			if err = tx.Where("ID = ?", surplus[i].EventID).Preload("Accomplishers").First(&event).Error; err != nil {
 				return
 			}
 			// aggiorno le assolvenze
@@ -268,13 +289,13 @@ func (e *Event) searchForFirstRemind(tx *gorm.DB, remind *Remind) (err error) {
 }
 
 func createAccomplisher(event Event, remind Remind) (a Accomplisher) {
-	score := remind.Accomplishers.Score()
-	delta := int(math.Min(float64(event.AccomplishMaxScore-event.Accomplishers.Score()), float64(remind.MaxScore-score)))
+	// score := remind.Accomplishers.Score()
+	// delta := int(math.Min(float64(event.AccomplishMaxScore-event.Accomplishers.Score()), float64(remind.MaxScore-score)))
 	a = Accomplisher{
 		RemindID:     remind.ID,
 		EventID:      event.ID,
 		AccomplishAt: *event.EventDate,
-		Score:        delta,
+		Score:        event.AccomplishMaxScore - event.Accomplishers.Score(),
 	}
 	return
 }
