@@ -211,31 +211,32 @@ func (e *Event) elaborateEvent(tx *gorm.DB) (err error) {
 		if err != nil {
 			return
 		}
-	} else {
-		// elimino l'eventuale remind
-		if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
-			return
-		}
 	}
+	// else {
+	// // elimino l'eventuale remind
+	// if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
+	// 	return
+	// }
+	// }
 
 	return
 }
 
-// // getNextEvents restituisce gli eventuali eventi dello stesso tipo successivi a e.EventDate
-// func (e *Event) getNextEvents(db *gorm.DB) (events []Event, err error) {
-// 	var acc Accomplisher
-// 	err = db.Select("events.*").Joins("left join "+acc.TableName()+" as acc on acc.event_id=events.id").
-// 		Where("hook = ? and remind_type = ?", e.Hook, e.RemindType).
-// 		Order("event_date").
-// 		// Where("acc.id is null").
-// 		Where("event_date > ?", e.EventDate).
-// 		Preload("Accomplishers").
-// 		Find(&events).Error
-// 	if err != nil {
-// 		return
-// 	}
-// 	return
-// }
+// getNextEvents restituisce gli eventuali eventi dello stesso tipo successivi a e.EventDate
+func (e *Event) getNextEvents(db *gorm.DB) (events []Event, err error) {
+	var acc Accomplisher
+	err = db.Select("events.*").Joins("left join "+acc.TableName()+" as acc on acc.event_id=events.id").
+		Where("hook = ? and remind_type = ?", e.Hook, e.RemindType).
+		Order("event_date").
+		// Where("acc.id is null").
+		Where("event_date > ?", e.EventDate).
+		Preload("Accomplishers").
+		Find(&events).Error
+	if err != nil {
+		return
+	}
+	return
+}
 
 // addRemindFromNonAccomplishedEvents inserisce eventuali Remind
 // generandoli da quegli eventi con stesso hook e tipo di "e"
@@ -319,6 +320,11 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 					return
 				}
 			}
+			// elimino l'eventuale remind
+			if err = tx.Where("event_id = ?", surplus[i].ID).Delete(&Remind{}).Error; err != nil {
+				return
+			}
+
 			// controllo l'evento
 			var event Event
 			if err = tx.Where("ID = ?", surplus[i].EventID).Preload("Accomplishers").First(&event).Error; err != nil {
