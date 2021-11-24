@@ -73,28 +73,8 @@ func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
 	}
 
 	for _, nextEv := range nextEvents {
-		if nextEv.Accomplishers.Len() == 0 {
-			if err = nextEv.elaborateEvent(tx); err != nil {
-				return
-			}
-		} else {
-			for i := range nextEv.Accomplishers {
-				var remind *Remind
-				if err = tx.Where("id = ?", nextEv.Accomplishers[i].RemindID).
-					Preload("Accomplishers").First(&remind).Error; err != nil {
-					if errors.Is(err, gorm.ErrRecordNotFound) {
-						err = nil
-						continue
-					} else {
-						return
-					}
-				}
-				if remind.ID > 0 {
-					if err = remind.searchForAccomplishers(tx); err != nil {
-						return
-					}
-				}
-			}
+		if err = nextEv.elaborateEvent(tx); err != nil {
+			return
 		}
 	}
 	return
