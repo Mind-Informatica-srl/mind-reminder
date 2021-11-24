@@ -62,7 +62,7 @@ func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
 
 		}
 		// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
-		if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
+		if err = tx.Where("event_id = ?", nextEv.ID).Delete(&Remind{}).Error; err != nil {
 			return
 		}
 	}
