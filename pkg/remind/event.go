@@ -238,29 +238,29 @@ func (e *Event) getNextEvents(db *gorm.DB) (events []Event, err error) {
 	return
 }
 
-// addRemindFromNonAccomplishedEvents inserisce eventuali Remind
+// addRemindsFromNonAccomplishedEvents inserisce eventuali Remind
 // generandoli da quegli eventi con stesso hook e tipo di "e"
 // e il cui AccomplishMaxScore sommato a quello degli eventi precedenti
 // raggiunge ExpectedScore di "e"
-func (e *Event) addRemindFromNonAccomplishedEvents(tx *gorm.DB) (err error) {
+func (e *Event) addRemindsFromNonAccomplishedEvents(tx *gorm.DB) (err error) {
 	var events []Event
 	events, err = e.getMaxScoreEvents(tx)
 	if err != nil {
 		return
 	}
-	if len(events) > 0 {
-		err = events[len(events)-1].generateRemind(tx)
-		if err != nil {
-			return
-		}
-	}
-	// for _, v := range events {
-	// 	err = v.generateRemind(tx)
+	// if len(events) > 0 {
+	// 	err = events[len(events)-1].generateRemind(tx)
 	// 	if err != nil {
 	// 		return
 	// 	}
-
 	// }
+	for _, v := range events {
+		err = v.generateRemind(tx)
+		if err != nil {
+			return
+		}
+
+	}
 	return
 }
 
@@ -270,7 +270,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 		var remind Remind
 		if err = e.searchForFirstRemind(tx, &remind); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				if err = e.addRemindFromNonAccomplishedEvents(tx); err != nil {
+				if err = e.addRemindsFromNonAccomplishedEvents(tx); err != nil {
 					return
 				}
 				err = nil
