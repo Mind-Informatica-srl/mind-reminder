@@ -73,6 +73,7 @@ func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
 	}
 
 	for _, nextEv := range nextEvents {
+		nextEv.Accomplishers = nil
 		if err = nextEv.elaborateEvent(tx); err != nil {
 			return
 		}
