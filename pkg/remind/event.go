@@ -40,44 +40,44 @@ type Event struct {
 
 // AfterCreate cerca le scadenze a cui assolve l'evento inserito ed eventualmente genera la scadenza
 func (e *Event) AfterCreate(tx *gorm.DB) (err error) {
-	// cerco eventuali eventi successivi
-	// per i quali vanno cancellate le scadenze e le assolvenze
-	var nextEvents []Event
-	nextEvents, err = e.getNextEvents(tx)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			err = nil
-		}
-		return
-	}
+	// // cerco eventuali eventi successivi
+	// // per i quali vanno cancellate le scadenze e le assolvenze
+	// var nextEvents []Event
+	// nextEvents, err = e.getNextEvents(tx)
+	// if err != nil {
+	// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+	// 		err = nil
+	// 	}
+	// 	return
+	// }
 
-	for _, nextEv := range nextEvents {
-		if nextEv.Accomplishers.Len() > 0 {
-			// elimimo le eventuali assolvenze successive
+	// for _, nextEv := range nextEvents {
+	// 	if nextEv.Accomplishers.Len() > 0 {
+	// 		// elimimo le eventuali assolvenze successive
 
-			// where 1=1 per non avere gorm.ErrMissingWhereClause
-			if err = tx.Where("1 = 1").Delete(&nextEv.Accomplishers).Error; err != nil {
-				return
-			}
+	// 		// where 1=1 per non avere gorm.ErrMissingWhereClause
+	// 		if err = tx.Where("1 = 1").Delete(&nextEv.Accomplishers).Error; err != nil {
+	// 			return
+	// 		}
 
-		}
-		// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
-		if err = tx.Where("event_id = ?", nextEv.ID).Delete(&Remind{}).Error; err != nil {
-			return
-		}
-	}
+	// 	}
+	// 	// elimino l'eventuale remind (e faccio in modo che tutti gli eventi che lo assolvevamo vengano rivalutati)
+	// 	if err = tx.Where("event_id = ?", nextEv.ID).Delete(&Remind{}).Error; err != nil {
+	// 		return
+	// 	}
+	// }
 
 	err = e.elaborateEvent(tx)
 	if err != nil {
 		return
 	}
 
-	for _, nextEv := range nextEvents {
-		nextEv.Accomplishers = nil
-		if err = nextEv.elaborateEvent(tx); err != nil {
-			return
-		}
-	}
+	// for _, nextEv := range nextEvents {
+	// 	nextEv.Accomplishers = nil
+	// 	if err = nextEv.elaborateEvent(tx); err != nil {
+	// 		return
+	// 	}
+	// }
 	return
 }
 
@@ -200,9 +200,20 @@ func (e *Event) generateRemind(tx *gorm.DB) error {
 func (e *Event) elaborateEvent(tx *gorm.DB) (err error) {
 	// cerco i remind che posso assolvere e creo le assolvenze
 	var hasToGenerateRemind bool
+	hasToDeleteRemind := true
 	hasToGenerateRemind, err = e.tryToAccomplish(tx)
 	if err != nil {
-		return
+		if errors.Is(err, errSearchForFirstRemindNotFound) {
+			// se l'errore è dato da searchForFirstRemind, si prova ad
+			// eseguire addRemindFromNonAccomplishedEvents
+			if err = e.addRemindFromNonAccomplishedEvents(tx); err != nil {
+				return
+			}
+			err = nil
+			hasToDeleteRemind = false
+		} else {
+			return
+		}
 	}
 
 	// se non ho raggiunto il minimo do errore
@@ -217,13 +228,12 @@ func (e *Event) elaborateEvent(tx *gorm.DB) (err error) {
 		if err != nil {
 			return
 		}
+	} else if hasToDeleteRemind {
+		// elimino l'eventuale remind
+		if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
+			return
+		}
 	}
-	// else {
-	// // elimino l'eventuale remind
-	// if err = tx.Where("event_id = ?", e.ID).Delete(&Remind{}).Error; err != nil {
-	// 	return
-	// }
-	// }
 
 	return
 }
@@ -270,16 +280,15 @@ func (e *Event) addRemindFromNonAccomplishedEvents(tx *gorm.DB) (err error) {
 	return
 }
 
+var errSearchForFirstRemindNotFound = errors.New("searchForFirstRemind returned ErrRecordNotFound")
+
 func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err error) {
 	for {
 		// finché c'è un remind da assolvere
 		var remind Remind
 		if err = e.searchForFirstRemind(tx, &remind); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				if err = e.addRemindFromNonAccomplishedEvents(tx); err != nil {
-					return
-				}
-				err = nil
+				err = errSearchForFirstRemindNotFound
 			}
 			return
 		}
@@ -319,6 +328,9 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 			}
 			hasToGenerateRemind = true
 		}
+
+		// se hasToGenerateRemind è true, si devono cancellare gli eventuali remind successivi (se esistono)?????
+
 		for i := range surplus {
 			// elimino il surplus
 			if surplus[i].ID > 0 {
