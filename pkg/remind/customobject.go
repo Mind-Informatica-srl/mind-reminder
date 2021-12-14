@@ -1,10 +1,8 @@
 package remind
 
 import (
-	"net/http"
 	"strconv"
 
-	"github.com/Mind-Informatica-srl/restapi/pkg/actions"
 	"github.com/Mind-Informatica-srl/restapi/pkg/models"
 	"gorm.io/gorm"
 )
@@ -39,7 +37,7 @@ func (c *CustomObject) BeforeDelete(tx *gorm.DB) (err error) {
 		// se non abbiamo CustomSectionID si recupera da db
 		var obj CustomObject
 		if err = tx.First(&obj).Error; err != nil {
-			return &actions.ActionError{Err: err, Status: http.StatusInternalServerError, Data: obj}
+			return
 		}
 		c.CustomSectionID = obj.CustomSectionID
 	}
@@ -48,13 +46,13 @@ func (c *CustomObject) BeforeDelete(tx *gorm.DB) (err error) {
 	if err = tx.Model(&evts).
 		Where("custom_section_id=? and object_reference_id = ?", c.CustomSectionID, strconv.Itoa(c.ID)).
 		Find(&evts).Error; err != nil {
-		return err
+		return
 	}
 	// si eliminano gli eventi collegati uno ad uno
 	// in modo da avviare il ricalcolo delle scadenze
 	for _, e := range evts {
 		if err = tx.Delete(&e).Error; err != nil {
-			return err
+			return
 		}
 	}
 	return
@@ -64,14 +62,14 @@ func (c *CustomObject) BeforeDelete(tx *gorm.DB) (err error) {
 func (c *CustomObject) AfterUpdate(tx *gorm.DB) (err error) {
 	// si aggiornano gli eventi associati in modo da avviare il ricalcolo delle scadenze
 	var evts []CustomEvent
-	if err := tx.Model(&evts).
+	if err = tx.Model(&evts).
 		Where("custom_section_id=? and object_reference_id = ?", c.CustomSectionID, strconv.Itoa(c.ID)).
 		Find(&evts).Error; err != nil {
-		return err
+		return
 	}
 	for _, e := range evts {
 		if err = tx.Updates(&e).Error; err != nil {
-			return err
+			return
 		}
 	}
 	return
