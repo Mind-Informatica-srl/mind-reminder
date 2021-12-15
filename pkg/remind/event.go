@@ -38,6 +38,14 @@ type Event struct {
 	Accomplishers             Accomplishers `gorm:"foreignKey:event_id;references:id"`
 	Hook                      models.JSONB
 	RemindInfo                `gorm:"embedded"`
+	manager                   *manager `gorm:"-"`
+}
+
+func (e *Event) TableName() string {
+	if e.manager != nil {
+		return *&e.manager.eventTableName
+	}
+	return "events"
 }
 
 // AfterCreate cerca le scadenze a cui assolve l'evento inserito ed eventualmente genera la scadenza
