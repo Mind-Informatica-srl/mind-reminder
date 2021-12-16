@@ -13,6 +13,8 @@ type CustomEventPrototype struct {
 	Name string
 	// descrizione del prototipo
 	Description *string
+	// AccomplishableAfterRemind se true indica che l'evento è assolvibile dopo la scadenza
+	AccomplishableAfterRemind bool
 	// // campo per indicare il riferimento dell'evento
 	// // se risorsa umana, oggetto custom o altro
 	// Reference string

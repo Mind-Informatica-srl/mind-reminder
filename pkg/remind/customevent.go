@@ -160,6 +160,7 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		val := c.CustomEventPrototype.RemindHookKeys[i]
 		event.RemindHook[val] = c.Data[val]
 	}
+	event.AccomplishableAfterRemind = c.CustomEventPrototype.AccomplishableAfterRemind
 	return
 }
 

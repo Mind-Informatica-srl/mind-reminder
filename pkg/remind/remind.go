@@ -126,7 +126,7 @@ func (r *Remind) searchForAccomplishers(tx *gorm.DB) (err error) {
 			Where("accstatus.tot_score < events.accomplish_max_score or max_date > ?", r.Event.EventDate).
 			Where("event_type = ? and remind_hook = ?", r.RemindType, r.Event.Hook).
 			Where("event_date > ?", r.Event.EventDate).
-			Where("event_date <= ?", r.ExpireAt).
+			Where("(event_date <= ? or true = ?)", r.ExpireAt, r.Event.AccomplishableAfterRemind).
 			Order("events.event_date").
 			Preload("accomplishers.Event").
 			First(&event).Error; err != nil {
