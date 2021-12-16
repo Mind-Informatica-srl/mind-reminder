@@ -379,7 +379,8 @@ func (e *Event) searchForFirstRemind(tx *gorm.DB, remind *Remind) (err error) {
 			"from accomplishers group by remind_id) as accstatus on accstatus.remind_id = remind.id").
 		Where("coalesce(accstatus.tot_score,0) < remind.max_score or max_date > ?", e.EventDate).
 		// Where("max_date > ?", e.EventDate).
-		Where("\"Event\".remind_type = ? and remind.hook = ? and expire_at >= ?", e.EventType, e.Hook, e.EventDate).
+		Where("\"Event\".remind_type = ? and remind.hook = ?", e.EventType, e.Hook).
+		Where("expire_at >= ? or true = ? ", e.EventDate, e.AccomplishableAfterRemind).
 		Order("\"Event\".event_date").
 		Preload("Accomplishers.Event").
 		First(remind).Error
