@@ -195,7 +195,7 @@ func (e *Event) generateRemind(tx *gorm.DB) error {
 	if e.RemindInfo.ExpirationDate != nil {
 		// se c'è ExpirationDate si genera remind
 		remind := e.getRemindFromEvent()
-		return tx.Create(&remind).Error
+		return tx.Omit("Event").Create(&remind).Error
 	}
 	return nil
 }
