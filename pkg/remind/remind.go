@@ -25,7 +25,7 @@ type Remind struct {
 	RemindType string
 	// id dell'evento
 	EventID int
-	Event   Event
+	Event   Event `gorm:"association_autoupdate:false;"`
 	// Data Scadenza
 	ExpireAt time.Time
 	// Data Creazione
