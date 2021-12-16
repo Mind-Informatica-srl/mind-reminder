@@ -185,6 +185,7 @@ func (e *Event) getRemindFromEvent() Remind {
 		CreatedAt:         time.Now(),
 		MaxScore:          e.RemindInfo.RemindMaxScore,
 		EventID:           e.ID,
+		Event:             *e,
 		Hook:              e.RemindHook,
 	}
 }
