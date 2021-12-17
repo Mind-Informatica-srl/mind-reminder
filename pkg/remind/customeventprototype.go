@@ -15,6 +15,9 @@ type CustomEventPrototype struct {
 	Description *string
 	// AccomplishableAfterRemind se true indica che l'evento è assolvibile dopo la scadenza
 	AccomplishableAfterRemind bool
+	// RequiredOnObjectCreation se true è obbligatorio
+	// quando si crea un oggetto della sezione
+	RequiredOnObjectCreation bool
 	// // campo per indicare il riferimento dell'evento
 	// // se risorsa umana, oggetto custom o altro
 	// Reference string

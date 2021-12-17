@@ -20,6 +20,7 @@ create table custom_event_prototypes(
     event_type_key text,
     event_date_key text,
     accomplishable_after_remind boolean default false,
+    required_on_object_creation boolean default false,
     accomplish_min_score_key text,
     accomplish_max_score_key text,
     expected_score_key text,
