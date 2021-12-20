@@ -102,6 +102,7 @@ func (c *CustomObject) AfterCreate(tx *gorm.DB) (err error) {
 	}
 	// si inseriscono anche gli eventi collegati
 	for _, e := range c.CustomEvents {
+		e.ObjectReferenceID = strconv.Itoa(c.ID)
 		if err = tx.Create(&e).Error; err != nil {
 			return
 		}
