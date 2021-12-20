@@ -83,8 +83,8 @@ func (c *CustomObject) AfterCreate(tx *gorm.DB) (err error) {
 	// collegati alla sezione dell'oggetto creato
 	var list []CustomEventPrototype
 	err = tx.Table("custom_event_prototypes as cep").
-		Joins("custom_section_custom_event_prototypes as cs on cs.custom_event_prototype_id = cep.id").
-		Where("cs.custom_section_id = ? and cep.required_on_object_creation = true").Find(&list).Error
+		Joins("join custom_section_custom_event_prototypes as cs on cs.custom_event_prototype_id = cep.id").
+		Where("cs.custom_section_id = ? and cep.required_on_object_creation = true", c.CustomSectionID).Find(&list).Error
 	if err != nil {
 		return
 	}
