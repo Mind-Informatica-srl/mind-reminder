@@ -152,11 +152,11 @@ func (r *Remind) searchForAccomplishers(tx *gorm.DB) (err error) {
 
 var remindDelegate = models.NewBaseDelegate(func() *gorm.DB {
 	return config.Current().DB
-}, func() models.PKModel {
-	return &Remind{}
+}, func(r *http.Request) (models.PKModel, error) {
+	return &Remind{}, nil
 },
-	func() interface{} {
-		return &[]Remind{}
+	func(r *http.Request) (interface{}, error) {
+		return &[]Remind{}, nil
 	}, func(r *http.Request) (interface{}, error) {
 		return actions.PrimaryKeyIntExtractor(r, "ID")
 	})
