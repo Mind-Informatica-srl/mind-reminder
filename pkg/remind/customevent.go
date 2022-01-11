@@ -68,7 +68,7 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 		var dateValue time.Time
 		dateValue, err = ParseDate(stringValue)
 		if err == nil {
-			event.EventDate = &dateValue
+			event.EventDate = (*models.OnlyDate)(&dateValue)
 		} else {
 			err = NewCustomEventError("EventDate", c.CustomEventPrototype.EventDateKey, c)
 			return
@@ -128,8 +128,8 @@ func (c *CustomEvent) GetEvent(db *gorm.DB) (event Event, err error) {
 	if err != nil {
 		return
 	}
-	dateValue := event.EventDate.AddDate(int(intervalValue.Anni), int(intervalValue.Mesi), intervalValue.Giorni)
-	event.RemindInfo.ExpirationDate = &dateValue
+	dateValue := time.Time(*event.EventDate).AddDate(int(intervalValue.Anni), int(intervalValue.Mesi), intervalValue.Giorni)
+	event.RemindInfo.ExpirationDate = (*models.OnlyDate)(&dateValue)
 
 	event.RemindInfo.RemindType = c.CustomEventPrototype.RemindTypeKey
 	if c.CustomEventPrototype.RemindMaxScoreKey == "" {

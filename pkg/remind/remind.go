@@ -27,7 +27,7 @@ type Remind struct {
 	EventID int
 	Event   Event `gorm:"association_autoupdate:false;"`
 	// Data Scadenza
-	ExpireAt time.Time
+	ExpireAt models.OnlyDate
 	// Data Creazione
 	CreatedAt time.Time `gorm:"default:now()"`
 	// Descrizione dello stato della scadenza

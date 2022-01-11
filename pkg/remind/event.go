@@ -17,7 +17,7 @@ import (
 // )
 
 type RemindInfo struct {
-	ExpirationDate    *time.Time
+	ExpirationDate    *models.OnlyDate
 	RemindType        string
 	RemindMaxScore    int
 	RemindDescription string
@@ -29,7 +29,7 @@ type RemindInfo struct {
 type Event struct {
 	ID        int
 	EventType string
-	EventDate *time.Time
+	EventDate *models.OnlyDate
 	// AccomplishableAfterRemind se true indica che l'evento è assolvibile dopo la scadenza
 	AccomplishableAfterRemind bool
 	AccomplishMinScore        int
@@ -315,7 +315,7 @@ func (e *Event) tryToAccomplish(tx *gorm.DB) (hasToGenerateRemind bool, err erro
 		// si cerca l'indice in cui dover inserire "a"
 		if remind.Accomplishers.Len() > 0 {
 			for i := 0; i < len(remind.Accomplishers); i++ {
-				if newEventDate.Before(*remind.Accomplishers[i].Event.EventDate) {
+				if time.Time(*newEventDate).Before(time.Time(*(remind.Accomplishers[i].Event.EventDate))) {
 					index = i
 					break
 				}

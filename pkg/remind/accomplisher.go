@@ -2,6 +2,8 @@ package remind
 
 import (
 	"time"
+
+	"github.com/Mind-Informatica-srl/restapi/pkg/models"
 )
 
 // Accomplisher è un'assolvenza (anche parziale) ad una scadenza
@@ -11,7 +13,7 @@ type Accomplisher struct {
 	Remind       Remind
 	EventID      int
 	Event        Event
-	AccomplishAt time.Time
+	AccomplishAt models.OnlyDate
 	// Percentuale di assolvenza
 	Score int
 }
@@ -53,7 +55,7 @@ func (accomplishers Accomplishers) Swap(i, j int) {
 
 // Less restituisce true se l'iesimo accomplisher è precedente al jesimo
 func (accomplishers Accomplishers) Less(i, j int) bool {
-	return accomplishers[i].AccomplishAt.Before(accomplishers[j].AccomplishAt)
+	return time.Time(accomplishers[i].AccomplishAt).Before(time.Time(accomplishers[j].AccomplishAt))
 }
 
 // Score restituisce lo score della lista di accomplishers
